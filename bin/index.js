@@ -1,30 +1,43 @@
 #! /usr/bin/env node
 const fs = require('fs');
+generate();
 
-console.log("Initializing Tigris quickstart application");
-initializeDirectoryStructure();
-initializePackageFile();
-initializeTSConfigFile();
-initializeIndexFile();
-console.log('🎉 Initialized the Tigris quickstart application successfully');
-console.log('Run following command to start the application against your' +
-    ' local db');
-console.log('npm run start');
-console.log('Learn more at https://docs.tigrisdata.com/')
+function generate() {
+    console.log("Initializing Tigris quickstart application");
+    initializeDirectoryStructure();
+    initializePackageFile();
+    initializeTSConfigFile();
+    initializeIndexFile();
+    initializeConfigFile();
+    initializeModels();
+
+    console.log('🎉 Initialized the Tigris quickstart application successfully');
+    console.log('Run following command to start the application against your' +
+        ' local db');
+    console.log('npm run start');
+    console.log('Learn more at https://docs.tigrisdata.com/')
+}
 
 function initializeDirectoryStructure() {
     // create src directory
-    const srcDirectory = './src';
+    const srcDir = './src';
+    if (!fs.existsSync(srcDir)) {
+        fs.mkdirSync(srcDir);
+    }
 
-    if (!fs.existsSync(srcDirectory)) {
-        fs.mkdirSync(srcDirectory);
+    const libDir = './src/lib';
+    if (!fs.existsSync(libDir)) {
+        fs.mkdirSync(libDir);
+    }
+
+    const modelsDir = './src/models';
+    if (!fs.existsSync(modelsDir)) {
+        fs.mkdirSync(modelsDir);
     }
 }
 
 function initializePackageFile() {
     const content = '{\n' +
-        '  "name": "tigris-quickstart-ts",\n' +
-        '  "version": "1.0.0",\n' +
         '  "main": "index.js",\n' +
         '  "scripts": {\n' +
         '    "clean": "rm -rf dist",\n' +
@@ -65,19 +78,14 @@ function initializeTSConfigFile() {
 
 function initializeIndexFile() {
     const content = 'import {Collection, DB, Tigris} from "@tigrisdata/core";\n' +
-        'import {\n' +
-        '    TigrisCollectionType,\n' +
-        '    TigrisDataTypes,\n' +
-        '    TigrisSchema,\n' +
-        '} from "@tigrisdata/core/dist/types";\n' +
+        'import {User, userSchema} from "./models/user";\n' +
+        'import {Config} from "./lib/config";\n' +
         '\n' +
         'export class Application {\n' +
         '    private readonly tigris: Tigris;\n' +
         '\n' +
-        '    constructor() {\n' +
-        '        this.tigris = new Tigris({\n' +
-        '            serverUrl: "localhost:8081",\n' +
-        '        });\n' +
+        '    constructor(tigris: Tigris) {\n' +
+        '        this.tigris = tigris;\n' +
         '        this.tigrisPlayground()\n' +
         '    }\n' +
         '\n' +
@@ -178,13 +186,38 @@ function initializeIndexFile() {
         '    }\n' +
         '}\n' +
         '\n' +
-        'interface User extends TigrisCollectionType {\n' +
+        'const tigris: Tigris = new Config().initializeTigrisClient();\n' +
+        'new Application(tigris);\n';
+    fs.writeFileSync('./src/index.ts', content);
+}
+
+function initializeConfigFile() {
+    const content = 'import {Tigris} from "@tigrisdata/core";\n' +
+        '\n' +
+        'export class Config {\n' +
+        '    public initializeTigrisClient(): Tigris {\n' +
+        '        return new Tigris({\n' +
+        '            serverUrl: "localhost:8081",\n' +
+        '        });\n' +
+        '    }\n' +
+        '}';
+    fs.writeFileSync('./src/lib/config.ts', content);
+}
+
+function initializeModels() {
+    const content = 'import {\n' +
+        '    TigrisCollectionType,\n' +
+        '    TigrisDataTypes,\n' +
+        '    TigrisSchema\n' +
+        '} from "@tigrisdata/core/dist/types";\n' +
+        '\n' +
+        'export interface User extends TigrisCollectionType {\n' +
         '    userId?: number;\n' +
         '    name: string;\n' +
         '    balance: number;\n' +
         '}\n' +
         '\n' +
-        'const userSchema: TigrisSchema<User> = {\n' +
+        'export const userSchema: TigrisSchema<User> = {\n' +
         '    userId: {\n' +
         '        type: TigrisDataTypes.INT32,\n' +
         '        primary_key: {\n' +
@@ -198,8 +231,8 @@ function initializeIndexFile() {
         '    balance: {\n' +
         '        type: TigrisDataTypes.NUMBER,\n' +
         '    },\n' +
-        '};\n' +
-        '\n' +
-        'new Application();\n';
-    fs.writeFileSync('./src/index.ts', content);
+        '};\n'
+
+    fs.writeFileSync('./src/models/user.ts', content);
+
 }
