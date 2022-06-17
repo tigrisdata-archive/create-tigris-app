@@ -1,0 +1,15 @@
+{
+  "main": "index.js",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && npm install && npx tsc",
+    "start": "npm install && npm run build && node dist/index.js"
+  },
+  "dependencies": {
+    "@tigrisdata/core": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.42",
+    "typescript": "^4.7.3"
+  }
+}
