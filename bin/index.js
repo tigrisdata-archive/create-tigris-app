@@ -1,15 +1,46 @@
 #! /usr/bin/env node
 const fs = require('fs');
-generate();
+const defaultOutputDir = process.cwd();
+const defaultPackageName = 'tigris-quickstart-ts';
 
-function generate() {
+run();
+
+async function run() {
+    const input = await userInput();
+    await generate(input);
+}
+
+async function userInput() {
+    const {prompt} = require('enquirer');
+    const response = await prompt([{
+        type: 'input',
+        name: 'package-name',
+        message: 'What is the package-name (' + defaultPackageName + '): ?'
+    },
+        {
+            type: 'input',
+            name: 'output-dir',
+            message: 'Where do you want the project to be generated (' + defaultOutputDir + '): ?'
+        }
+    ]);
+    return response;
+}
+
+async function generate(input) {
+    let outputDir = input['output-dir'];
+    if (outputDir == null || outputDir.length === 0) {
+        outputDir = defaultOutputDir;
+    }
+    let packageName = input['package-name'];
+    if (packageName == null || packageName.length === 0) {
+        packageName = defaultPackageName;
+    }
+
     console.log("Initializing Tigris quickstart application");
-    initializeDirectoryStructure();
-    initializePackageFile();
-    initializeTSConfigFile();
-    initializeIndexFile();
-    initializeConfigFile();
-    initializeModels();
+    initializeDirectoryStructure(outputDir);
+    initializePackageFile(outputDir, packageName);
+    initializeTSConfigFile(outputDir);
+    initializeSourceCode(outputDir);
 
     console.log('🎉 Initialized the Tigris quickstart application successfully');
     console.log('Run following command to start the application against your' +
@@ -18,26 +49,38 @@ function generate() {
     console.log('Learn more at https://docs.tigrisdata.com/')
 }
 
-function initializeDirectoryStructure() {
+function initializeSourceCode(outputDir) {
+    initializeIndexFile(outputDir);
+    initializeAppFile(outputDir);
+    initializeConfigFile(outputDir);
+    initializeModels(outputDir);
+}
+
+function initializeDirectoryStructure(outputDir) {
+    // create outputDir
+    if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir);
+    }
     // create src directory
-    const srcDir = './src';
+    const srcDir = outputDir + '/src';
     if (!fs.existsSync(srcDir)) {
         fs.mkdirSync(srcDir);
     }
 
-    const libDir = './src/lib';
+    const libDir = outputDir + '/src/lib';
     if (!fs.existsSync(libDir)) {
         fs.mkdirSync(libDir);
     }
 
-    const modelsDir = './src/models';
+    const modelsDir = outputDir + '/src/models';
     if (!fs.existsSync(modelsDir)) {
         fs.mkdirSync(modelsDir);
     }
 }
 
-function initializePackageFile() {
+function initializePackageFile(outputDir, packageName) {
     const content = '{\n' +
+        '  "name": "' + packageName + '",\n' +
         '  "main": "index.js",\n' +
         '  "scripts": {\n' +
         '    "clean": "rm -rf dist",\n' +
@@ -52,10 +95,10 @@ function initializePackageFile() {
         '    "typescript": "^4.7.3"\n' +
         '  }\n' +
         '}\n';
-    fs.writeFileSync('package.json', content);
+    fs.writeFileSync(outputDir + '/package.json', content);
 }
 
-function initializeTSConfigFile() {
+function initializeTSConfigFile(outputDir) {
     const content = '{\n' +
         '  "compilerOptions": {\n' +
         '    "experimentalDecorators": true,\n' +
@@ -73,20 +116,30 @@ function initializeTSConfigFile() {
         '  "include": ["src"],\n' +
         '  "exclude": ["node_modules", "**/__tests__/*"]\n' +
         '}\n';
-    fs.writeFileSync('tsconfig.json', content);
+    fs.writeFileSync(outputDir + '/tsconfig.json', content);
 }
 
-function initializeIndexFile() {
+function initializeIndexFile(outputDir) {
+    const content = 'import {Tigris} from "@tigrisdata/core";\n' +
+        'import {Config} from "./lib/config";\n' +
+        'import {Application} from "./app";\n' +
+        '\n' +
+        '\n' +
+        'const tigris: Tigris = new Config().initializeTigrisClient();\n' +
+        'const app: Application = new Application(tigris);\n' +
+        'app.tigrisQuickstart()\n';
+    fs.writeFileSync(outputDir + '/src/index.ts', content);
+}
+
+function initializeAppFile(outputDir) {
     const content = 'import {Collection, DB, Tigris} from "@tigrisdata/core";\n' +
         'import {User, userSchema} from "./models/user";\n' +
-        'import {Config} from "./lib/config";\n' +
         '\n' +
         'export class Application {\n' +
         '    private readonly tigris: Tigris;\n' +
         '\n' +
         '    constructor(tigris: Tigris) {\n' +
         '        this.tigris = tigris;\n' +
-        '        this.tigrisQuickstart()\n' +
         '    }\n' +
         '\n' +
         '    public async tigrisQuickstart() {\n' +
@@ -184,14 +237,11 @@ function initializeIndexFile() {
         '        await this.tigris.dropDatabase("hello-db");\n' +
         '        console.log("database dropped");\n' +
         '    }\n' +
-        '}\n' +
-        '\n' +
-        'const tigris: Tigris = new Config().initializeTigrisClient();\n' +
-        'new Application(tigris);\n';
-    fs.writeFileSync('./src/index.ts', content);
+        '}\n';
+    fs.writeFileSync(outputDir + '/src/app.ts', content);
 }
 
-function initializeConfigFile() {
+function initializeConfigFile(outputDir) {
     const content = 'import {Tigris} from "@tigrisdata/core";\n' +
         '\n' +
         'export class Config {\n' +
@@ -201,10 +251,10 @@ function initializeConfigFile() {
         '        });\n' +
         '    }\n' +
         '}';
-    fs.writeFileSync('./src/lib/config.ts', content);
+    fs.writeFileSync(outputDir + '/src/lib/config.ts', content);
 }
 
-function initializeModels() {
+function initializeModels(outputDir) {
     const content = 'import {\n' +
         '    TigrisCollectionType,\n' +
         '    TigrisDataTypes,\n' +
@@ -233,6 +283,5 @@ function initializeModels() {
         '    },\n' +
         '};\n'
 
-    fs.writeFileSync('./src/models/user.ts', content);
-
+    fs.writeFileSync(outputDir + '/src/models/user.ts', content);
 }

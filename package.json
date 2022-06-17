@@ -13,5 +13,6 @@
   },
   "license": "Apache 2.0",
   "dependencies": {
+    "enquirer": "^2.3.6"
   }
 }
