@@ -86,10 +86,10 @@ function initializeIndexFile() {
         '\n' +
         '    constructor(tigris: Tigris) {\n' +
         '        this.tigris = tigris;\n' +
-        '        this.tigrisPlayground()\n' +
+        '        this.tigrisQuickstart()\n' +
         '    }\n' +
         '\n' +
-        '    public async tigrisPlayground() {\n' +
+        '    public async tigrisQuickstart() {\n' +
         '        // create db if not exists\n' +
         '        const db: DB = await this.tigris.createDatabaseIfNotExists("hello-db");\n' +
         '        console.log("db created");\n' +
@@ -168,7 +168,7 @@ function initializeIndexFile() {
         '                },\n' +
         '                tx\n' +
         '            );\n' +
-        '            console.log("balance transferred");\n' +
+        '            console.log("transaction performed - balance transferred between users");\n' +
         '        });\n' +
         '\n' +
         '        // delete users\n' +
