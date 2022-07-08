@@ -167,10 +167,10 @@ function initializeAppFile(outputDir) {
         '        console.log("user created with id = " + bunny.userId);\n' +
         '\n' +
         '        // find the user by pkey field\n' +
-        '        const user1: User = await users.readOne({\n' +
+        '        const user1: User = await users.findOne({\n' +
         '            userId: jania.userId,\n' +
         '        });\n' +
-        '        const user2: User = await users.readOne({\n' +
+        '        const user2: User = await users.findOne({\n' +
         '            userId: bunny.userId,\n' +
         '        });\n' +
         '\n' +
@@ -188,13 +188,13 @@ function initializeAppFile(outputDir) {
         '        // transaction - transfer balance between users\n' +
         '        await db.transact(async (tx) => {\n' +
         '            // find the user by pkey field\n' +
-        '            const user1: User = await users.readOne(\n' +
+        '            const user1: User = await users.findOne(\n' +
         '                {\n' +
         '                    userId: jania.userId,\n' +
         '                },\n' +
         '                tx\n' +
         '            );\n' +
-        '            const user2: User = await users.readOne(\n' +
+        '            const user2: User = await users.findOne(\n' +
         '                {\n' +
         '                    userId: bunny.userId,\n' +
         '                },\n' +
