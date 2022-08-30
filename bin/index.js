@@ -144,7 +144,7 @@ function initializeAppFile(outputDir) {
         '\n' +
         '    public async tigrisQuickstart() {\n' +
         '        // create db if not exists\n' +
-        '        const db: DB = await this.tigris.createDatabaseIfNotExists("hello-db");\n' +
+        '        const db: DB = await this.tigris.createDatabaseIfNotExists("hello_db");\n' +
         '        console.log("db created");\n' +
         '        // register or update collection\n' +
         '        const users: Collection<User> = await db.createOrUpdateCollection(\n' +
@@ -234,7 +234,7 @@ function initializeAppFile(outputDir) {
         '        console.log("users deleted");\n' +
         '\n' +
         '        // drop database\n' +
-        '        await this.tigris.dropDatabase("hello-db");\n' +
+        '        await this.tigris.dropDatabase("hello_db");\n' +
         '        console.log("database dropped");\n' +
         '    }\n' +
         '}\n';
@@ -248,6 +248,7 @@ function initializeConfigFile(outputDir) {
         '    public initializeTigrisClient(): Tigris {\n' +
         '        return new Tigris({\n' +
         '            serverUrl: "localhost:8081",\n' +
+        '            insecureChannel: true,\n' +
         '        });\n' +
         '    }\n' +
         '}';
