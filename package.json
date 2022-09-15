@@ -1,5 +1,5 @@
 {
-  "name": "create-tigris-app",
+  "name": "@tigrisdata/create-tigris-app",
   "version": "1.0.0-alpha.7",
   "description": "",
   "main": "index.js",
