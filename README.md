@@ -5,6 +5,6 @@ A nodejs tool to create TypeScript scaffolding.
 # scaffold
 
 ```
-mkdir tigris-quickstart-ts && cd tigris-quickstart-ts
+mkdir hello-tigris && cd hello-tigris
 npx create-tigris-app
 ```
