@@ -12,7 +12,6 @@ export class TigrisClient {
       serverUrl: "localhost:8081",
       insecureChannel: true,
     });
-
   }
 
   public get db(): DB {

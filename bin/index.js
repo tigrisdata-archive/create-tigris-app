@@ -72,7 +72,7 @@ function initializeDirectoryStructure (outputDir) {
     fs.mkdirSync(modelsDir)
   }
 
-  const collectionsDir = outputDir + '/src/collections'
+  const collectionsDir = outputDir + '/src/repository'
   if (!fs.existsSync(collectionsDir)) {
     fs.mkdirSync(collectionsDir)
   }
@@ -135,7 +135,7 @@ function initializeCollectionsFile (outputDir) {
     '\n' +
     '//TODO: Add CRUD operations here\n' +
     '}';
-  fs.writeFileSync(outputDir + '/src/collections/users.ts', content)
+  fs.writeFileSync(outputDir + '/src/repository/users.ts', content)
 }
 
 function initializeScriptFile (outputDir) {
@@ -189,7 +189,6 @@ function initializeTigrisClientFile (outputDir) {
     '      serverUrl: "localhost:8081",\n' +
     '      insecureChannel: true,\n' +
     '    });\n' +
-    '\n' +
     '  }\n' +
     '\n' +
     '  public get db(): DB {\n' + '    return this._db;\n' +
