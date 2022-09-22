@@ -39,13 +39,13 @@ async function userInput () {
     const identityResponse = await prompt([
       {
         type: 'input',
-        name: 'application-id',
-        message: 'What is the application-id ?',
+        name: 'client-id',
+        message: 'What is the clientId ?',
       },
       {
         type: 'password',
-        name: 'application-secret',
-        message: 'What is the application secret ?',
+        name: 'client-secret',
+        message: 'What is the client secret ?',
       },
     ])
     response = { ...response, ...identityResponse }
@@ -82,8 +82,8 @@ async function generate (input) {
   let config = { serverUrl: tigrisUrl, insecureChannel: true }
 
   if (requiresAuthSetup(tigrisUrl)) {
-    config['applicationId'] = input['application-id']
-    config['applicationSecret'] = input['application-secret']
+    config['clientId'] = input['client-id']
+    config['clientSecret'] = input['client-secret']
     config['insecureChannel'] = false
   }
 
