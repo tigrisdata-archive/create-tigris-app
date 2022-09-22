@@ -1,16 +1,17 @@
 {
   "name": "@tigrisdata/create-tigris-app",
-  "version": "1.0.0-alpha.7",
-  "description": "",
+  "version": "1.0.0-alpha.8",
+  "description": "Utility to create typescript application to interact with Tigris database",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["database", "starter"],
   "author": "",
   "bin": {
     "create-tigris-app": "bin/index.js"
   },
+  "repository": "github:tigrisdata/create-tigris-app",
   "license": "Apache 2.0",
   "dependencies": {
     "enquirer": "^2.3.6"
