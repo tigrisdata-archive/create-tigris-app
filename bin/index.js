@@ -174,14 +174,44 @@ import {Collection, DB} from "@tigrisdata/core";
 import {SelectorFilterOperator, UpdateFieldsOperator} from "@tigrisdata/core/dist/types";
 import {SearchRequest, SearchResult} from "@tigrisdata/core/dist/search/types";
 
-export class Users {
+export class UsersRepository {
   private readonly users: Collection<User>;
 
   constructor(db: DB) {
     this.users = db.getCollection<User>("users");
   }
 
-  //TODO: Add CRUD operations here
+  //TODO: Add CRUD operations to the code below
+
+  // Create a user record
+  public create = async (user: User) => {
+
+  }
+
+  // Read a user by ID
+  public findOne = async (id: number) => {
+
+  }
+
+  // Read all users from the collection
+  public findAll = async () => {
+
+  }
+
+  // Search user records by name
+  public search = async (name: string) => {
+
+  }
+
+  // Update a user record
+  public update = async (id: number, user: User) => {
+
+  }
+
+  // Delete a user record
+  public delete = async (id: number) => {
+
+  }
 }
 `
 
@@ -189,7 +219,11 @@ export class Users {
 }
 
 function initializeIndexFile (outputDir) {
-  const code = `import {TigrisClient} from "./lib/tigrisClient";
+  const code = `// Importing Tigris client to connect
+import {TigrisClient} from "./lib/tigrisClient";
+
+// Importing users
+import {UsersRepository} from "./repository/users";
 
 const tigris = new TigrisClient();
 
@@ -198,6 +232,9 @@ async function main() {
   // Create the collections from the models if they don't exist, or
   // update the schema of the collections based on the model definition
   await tigris.setup();
+
+  // initialize the repository
+  const repository = new UsersRepository(tigris.db);
 }
 
 main()
@@ -269,13 +306,16 @@ export class TigrisClient {
 
   public async initializeTigris() {
     // create database (if not exists)
+    console.log("creating db if it doesn't exist: " + this.dbName);
     this._db = await this.tigris.createDatabaseIfNotExists(this.dbName);
     console.log("db: " + this.dbName + " created successfully");
 
     // register collections schema and wait for it to finish
+    console.log("creating collections if they don't exit, otherwise updating their schema")
     await Promise.all([
       this._db.createOrUpdateCollection<User>("users", userSchema),
     ]);
+    console.log("collections created/updated successfully")
   }
 
   public dropCollection = async () => {

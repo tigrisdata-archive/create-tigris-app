@@ -1,4 +1,8 @@
+// Importing Tigris client to connect
 import {TigrisClient} from "./lib/tigrisClient";
+
+// Importing users
+import {UsersRepository} from "./repository/users";
 
 const tigris = new TigrisClient();
 
@@ -7,6 +11,9 @@ async function main() {
   // Create the collections from the models if they don't exist, or
   // update the schema of the collections based on the model definition
   await tigris.setup();
+
+  // initialize the repository
+  const repository = new UsersRepository(tigris.db);
 }
 
 main()
