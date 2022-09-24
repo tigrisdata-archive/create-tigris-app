@@ -79,19 +79,18 @@ async function generate (input) {
     tigrisUrl = defaultServerUrl
   }
 
-  let config = { serverUrl: tigrisUrl, insecureChannel: true }
-
-  if (requiresAuthSetup(tigrisUrl)) {
-    config['clientId'] = input['client-id']
-    config['clientSecret'] = input['client-secret']
-    config['insecureChannel'] = false
-  }
+  let configContent = `{
+      serverUrl: "${tigrisUrl}",
+      ${requiresAuthSetup(tigrisUrl) ? `clientId: \"${input['client-id']}\",
+      clientSecret: \"${input['client-secret']}\",
+      insecureChannel: false` : "insecureChannel: true"}
+    }`
 
   console.log('Initializing Tigris quickstart application')
   initializeDirectoryStructure(outputDir)
   initializePackageFile(outputDir, packageName)
   initializeTSConfigFile(outputDir)
-  initializeSourceCode(outputDir, JSON.stringify(config))
+  initializeSourceCode(outputDir, configContent)
 
   console.log('🎉 Initialized the Tigris quickstart application successfully')
   console.log('Run following command to install dependencies')
@@ -102,7 +101,7 @@ async function generate (input) {
 function initializeSourceCode (outputDir, config) {
   initializeModels(outputDir)
   initializeCollectionsFile(outputDir)
-  initializeScriptFile(outputDir)
+  initializeIndexFile(outputDir)
   initializeTigrisClientFile(outputDir, config)
 }
 
@@ -111,160 +110,162 @@ function initializeDirectoryStructure (outputDir) {
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir)
   }
+
   // create src directory
-  const srcDir = outputDir + '/src'
-  if (!fs.existsSync(srcDir)) {
-    fs.mkdirSync(srcDir)
-  }
-
-  const modelsDir = outputDir + '/src/models'
-  if (!fs.existsSync(modelsDir)) {
-    fs.mkdirSync(modelsDir)
-  }
-
-  const collectionsDir = outputDir + '/src/repository'
-  if (!fs.existsSync(collectionsDir)) {
-    fs.mkdirSync(collectionsDir)
-  }
+  const dirPaths = ['/src', '/src/models', '/src/repository', '/src/lib']
+  dirPaths.forEach(function (element) {
+    const srcDir =  outputDir + element
+    if (!fs.existsSync(srcDir)) {
+      fs.mkdirSync(srcDir)
+    }
+  })
 }
 
 function initializePackageFile (outputDir, packageName) {
-  const content = '{\n' +
-    '  "name": "' + packageName + '",\n' +
-    '  "main": "index.js",\n' +
-    '  "scripts": {\n' +
-    '    "clean": "rm -rf dist",\n' +
-    '    "build": "npm run clean && npm install && npx tsc",\n' +
-    '    "test": "npx ts-node src/testScript.ts"\n' +
-    '  },\n' +
-    '  "dependencies": {\n' +
-    '    "@tigrisdata/core": "latest"\n' +
-    '  },\n' +
-    '  "devDependencies": {\n' +
-    '    "@types/node": "^17.0.42",\n' +
-    '    "typescript": "^4.7.3"\n' +
-    '  }\n' +
-    '}\n'
-  fs.writeFileSync(outputDir + '/package.json', content)
+  const code = `{
+  "name": "${packageName}",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && npm install && npx tsc",
+    "test": "npx ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@tigrisdata/core": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.42",
+    "typescript": "^4.7.3"
+  }
+}
+
+`
+
+  fs.writeFileSync(outputDir + '/package.json', code)
 }
 
 function initializeTSConfigFile (outputDir) {
-  const content = '{\n' +
-    '  "compilerOptions": {\n' +
-    '    "experimentalDecorators": true,\n' +
-    '    "target": "es6",\n' +
-    '    "module": "commonjs",\n' +
-    '    "declaration": true,\n' +
-    '    "outDir": "./dist",\n' +
-    '    "strict": true,\n' +
-    '    "noImplicitAny": false,\n' +
-    '    "strictNullChecks": false,\n' +
-    '    "strictPropertyInitialization": false,\n' +
-    '    "baseUrl": "./",\n' +
-    '    "typeRoots": ["node_modules/@types"],\n' +
-    '    "esModuleInterop": true\n' +
-    '  },\n' +
-    '  "include": ["src"],\n' +
-    '  "exclude": ["node_modules", "**/__tests__/*"]\n' +
-    '}\n'
-  fs.writeFileSync(outputDir + '/tsconfig.json', content)
+  const code = `{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "baseUrl": "./",
+    "typeRoots": ["node_modules/@types"],
+    "esModuleInterop": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "**/__tests__/*"]
+}
+
+`
+
+  fs.writeFileSync(outputDir + '/tsconfig.json', code)
 }
 
 function initializeCollectionsFile (outputDir) {
-  const content = 'import {User} from "../models/user";\n' +
-    'import {Collection, DB} from "@tigrisdata/core";\n' +
-    'import {SelectorFilterOperator, UpdateFieldsOperator} from "@tigrisdata/core/dist/types";\n'
-    +
-    'import {SearchRequest, SearchResult} from "@tigrisdata/core/dist/search/types";\n'
-    +
-    '\n' +
-    'export class Users {\n' +
-    '  private readonly users: Collection<User>;\n' +
-    '\n' +
-    '  constructor(db: DB) {\n' +
-    '    this.users = db.getCollection<User>("users");\n' +
-    '  }\n' +
-    '\n' +
-    '//TODO: Add CRUD operations here\n' +
-    '}'
-  fs.writeFileSync(outputDir + '/src/repository/users.ts', content)
+  const code = `import {User} from "../models/user";
+import {Collection, DB} from "@tigrisdata/core";
+import {SelectorFilterOperator, UpdateFieldsOperator} from "@tigrisdata/core/dist/types";
+import {SearchRequest, SearchResult} from "@tigrisdata/core/dist/search/types";
+
+export class Users {
+  private readonly users: Collection<User>;
+
+  constructor(db: DB) {
+    this.users = db.getCollection<User>("users");
+  }
+
+  //TODO: Add CRUD operations here
 }
 
-function initializeScriptFile (outputDir) {
-  fs.writeFileSync(outputDir + '/src/testScript.ts', '')
+`
+
+  fs.writeFileSync(outputDir + '/src/repository/users.ts', code)
+}
+
+function initializeIndexFile (outputDir) {
+  fs.writeFileSync(outputDir + '/src/index.ts', '')
 }
 
 function initializeModels (outputDir) {
-  const content = 'import {\n' +
-    '  TigrisCollectionType,\n' +
-    '  TigrisDataTypes,\n' +
-    '  TigrisSchema,\n' +
-    '} from "@tigrisdata/core/dist/types";\n' +
-    '\n' +
-    'export interface User extends TigrisCollectionType {\n' +
-    '  userId?: number;\n' +
-    '  name: string;\n' +
-    '  balance: number;\n' +
-    '}\n' +
-    '\n' +
-    'export const userSchema: TigrisSchema<User> = {\n' +
-    '  userId: {\n' +
-    '    type: TigrisDataTypes.INT32,\n' +
-    '    primary_key: {\n' +
-    '      order: 1,\n' +
-    '      autoGenerate: true,\n' +
-    '    },\n' +
-    '  },\n' +
-    '  name: {\n' +
-    '    type: TigrisDataTypes.STRING,\n' +
-    '  },\n' +
-    '  balance: {\n' +
-    '    type: TigrisDataTypes.NUMBER,\n' +
-    '  },\n' +
-    '};\n'
+  const code = `import {
+  TigrisCollectionType,
+  TigrisDataTypes,
+  TigrisSchema,
+} from "@tigrisdata/core/dist/types";
 
-  fs.writeFileSync(outputDir + '/src/models/user.ts', content)
+export interface User extends TigrisCollectionType {
+  userId?: number;
+  name: string;
+  balance: number;
+}
+
+export const userSchema: TigrisSchema<User> = {
+  userId: {
+    type: TigrisDataTypes.INT32,
+    primary_key: {
+      order: 1,
+      autoGenerate: true,
+    },
+  },
+  name: {
+    type: TigrisDataTypes.STRING,
+  },
+  balance: {
+    type: TigrisDataTypes.NUMBER,
+  },
+};
+
+`
+
+  fs.writeFileSync(outputDir + '/src/models/user.ts', code)
 }
 
 function initializeTigrisClientFile (outputDir, config) {
-  const content = 'import { DB, Tigris } from "@tigrisdata/core";\n' +
-    'import { User, userSchema } from "./models/user";\n' +
-    '\n' +
-    'export class TigrisClient {\n' +
-    '  private readonly dbName: string;\n' +
-    '  private readonly tigris: Tigris;\n' +
-    '  private _db: DB;\n' +
-    '\n' +
-    '  constructor() {\n' +
-    '    this.dbName = "hello_tigris";\n' +
-    '    this.tigris = new Tigris(' + config + ');\n' +
-    '  }\n' +
-    '\n' +
-    '  public get db(): DB {\n' +
-    '    return this._db;\n' +
-    '  }\n' +
-    '\n' +
-    '  public async setup() {\n' +
-    '    await this.initializeTigris();\n' +
-    '  }\n' +
-    '\n' +
-    '  public async initializeTigris() {\n' +
-    '    // create database (if not exists)\n' +
-    '    this._db = await this.tigris.createDatabaseIfNotExists(this.dbName);\n'
-    +
-    '    console.log("db: " + this.dbName + " created successfully");\n' +
-    '\n' +
-    '    // register collections schema and wait for it to finish\n' +
-    '    await Promise.all([\n' +
-    '      this._db.createOrUpdateCollection<User>("users", userSchema),\n' +
-    '    ]);\n' +
-    '  }\n' +
-    '\n' +
-    '  public dropCollection = async () => {\n' +
-    '    const resp = await this._db.dropCollection("users");\n' +
-    '    console.log(resp);\n' +
-    '  }\n' +
-    '}\n'
+  const code = `import { DB, Tigris } from "@tigrisdata/core";
+import { User, userSchema } from "../models/user";
 
-  fs.writeFileSync(outputDir + '/src/tigrisClient.ts', content)
+export class TigrisClient {
+  private readonly dbName: string;
+  private readonly tigris: Tigris;
+  private _db: DB;
+
+  constructor() {
+    this.dbName = "hello_tigris";
+    this.tigris = new Tigris(${config});
+  }
+
+  public get db(): DB {
+    return this._db;
+  }
+
+  public async setup() {
+    await this.initializeTigris();
+  }
+
+  public async initializeTigris() {
+    // create database (if not exists)
+    this._db = await this.tigris.createDatabaseIfNotExists(this.dbName);
+    console.log("db: " + this.dbName + " created successfully");
+
+    // register collections schema and wait for it to finish
+    await Promise.all([
+      this._db.createOrUpdateCollection<User>("users", userSchema),
+    ]);
+  }
+
+  public dropCollection = async () => {
+    const resp = await this._db.dropCollection("users");
+    console.log(resp);
+  }
+}
+`
+  fs.writeFileSync(outputDir + '/src/lib/tigrisClient.ts', code)
 }

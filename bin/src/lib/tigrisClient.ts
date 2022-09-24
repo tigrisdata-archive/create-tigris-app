@@ -1,5 +1,5 @@
 import { DB, Tigris } from "@tigrisdata/core";
-import { User, userSchema } from "./models/user";
+import { User, userSchema } from "../models/user";
 
 export class TigrisClient {
   private readonly dbName: string;
