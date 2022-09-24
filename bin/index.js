@@ -131,14 +131,14 @@ function initializePackageFile (outputDir, packageName) {
     "test": "npx ts-node src/index.ts"
   },
   "dependencies": {
-    "@tigrisdata/core": "latest"
+    "@tigrisdata/core": "latest",
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@types/node": "^17.0.42",
     "typescript": "^4.7.3"
   }
 }
-
 `
 
   fs.writeFileSync(outputDir + '/package.json', code)
@@ -163,7 +163,6 @@ function initializeTSConfigFile (outputDir) {
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*"]
 }
-
 `
 
   fs.writeFileSync(outputDir + '/tsconfig.json', code)
@@ -184,14 +183,33 @@ export class Users {
 
   //TODO: Add CRUD operations here
 }
-
 `
 
   fs.writeFileSync(outputDir + '/src/repository/users.ts', code)
 }
 
 function initializeIndexFile (outputDir) {
-  fs.writeFileSync(outputDir + '/src/index.ts', '')
+  const code = `import {TigrisClient} from "./lib/tigrisClient";
+
+const tigris = new TigrisClient();
+
+async function main() {
+  // Connect to Tigris, create the database if it does not exist.
+  // Create the collections from the models if they don't exist, or
+  // update the schema of the collections based on the model definition
+  await tigris.setup();
+}
+
+main()
+  .then(async () => {
+    console.log("All done ...")
+  })
+  .catch(async (e) => {
+    console.error(e)
+    process.exit(1);
+  })
+`
+  fs.writeFileSync(outputDir + '/src/index.ts', code)
 }
 
 function initializeModels (outputDir) {
@@ -222,7 +240,6 @@ export const userSchema: TigrisSchema<User> = {
     type: TigrisDataTypes.NUMBER,
   },
 };
-
 `
 
   fs.writeFileSync(outputDir + '/src/models/user.ts', code)
