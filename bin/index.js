@@ -30,7 +30,7 @@ async function userInput () {
     {
       type: 'input',
       name: 'server-url',
-      message: 'What is the url for your Tigris server (default: ' +
+      message: 'What is the url for your Tigris instance (default: ' +
         defaultServerUrl + ') ?'
     },
   ])
