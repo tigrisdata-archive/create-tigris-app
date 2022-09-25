@@ -10,7 +10,7 @@ export class TigrisClient {
     this.dbName = "hello_tigris";
     this.tigris = new Tigris({
       serverUrl: "localhost:8081",
-      insecureChannel: true,
+      insecureChannel: true
     });
   }
 

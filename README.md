@@ -6,5 +6,5 @@ A nodejs tool to create TypeScript scaffolding.
 
 ```
 mkdir hello-tigris && cd hello-tigris
-npx create-tigris-app
+npx @tigrisdata/create-tigris-app
 ```

@@ -14,6 +14,8 @@ async function main() {
 
   // initialize the repository
   const repository = new UsersRepository(tigris.db);
+
+  // TODO: perform queries
 }
 
 main()
