@@ -1,4 +1,4 @@
-import { DB, Tigris } from "@tigrisdata/core";
+import {DB, Tigris, TigrisClientConfig} from "@tigrisdata/core";
 import { User, userSchema } from "../models/user";
 
 export class TigrisClient {
@@ -8,10 +8,10 @@ export class TigrisClient {
 
   constructor() {
     this.dbName = "hello_tigris";
-    this.tigris = new Tigris({
-      serverUrl: "localhost:8081",
-      insecureChannel: true
-    });
+
+    const config = this.configFromEnv();
+    console.log("Connecting to Tigris at " + config.serverUrl);
+    this.tigris = new Tigris(config);
   }
 
   public get db(): DB {
@@ -39,5 +39,21 @@ export class TigrisClient {
   public dropCollection = async () => {
     const resp = await this._db.dropCollection("users");
     console.log(resp);
+  }
+
+  private configFromEnv(): TigrisClientConfig {
+    let config: TigrisClientConfig = {
+      serverUrl: process.env.TIGRIS_SERVER_URL
+    }
+
+    if ("TIGRIS_CLIENT_ID" in process.env) {
+      config["clientId"] = process.env.TIGRIS_CLIENT_ID;
+    }
+    if ("TIGRIS_CLIENT_SECRET" in process.env) {
+      config["clientSecret"] = process.env.TIGRIS_CLIENT_SECRET;
+    }
+    config["insecureChannel"] = process.env.TIGRIS_INSECURE_CHANNEL == "true";
+
+    return config;
   }
 }

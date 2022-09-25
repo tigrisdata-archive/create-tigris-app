@@ -79,12 +79,11 @@ async function generate (input) {
     tigrisUrl = defaultServerUrl
   }
 
-  let configContent = `{
-      serverUrl: "${tigrisUrl}",
-      ${requiresAuthSetup(tigrisUrl) ? `clientId: \"${input['client-id']}\",
-      clientSecret: \"${input['client-secret']}\",
-      insecureChannel: false` : "insecureChannel: true"}
-    }`
+  let configContent = `TIGRIS_SERVER_URL=${tigrisUrl}
+${requiresAuthSetup(tigrisUrl) ? `TIGRIS_CLIENT_ID=${input['client-id']}
+TIGRIS_CLIENT_SECRET=${input['client-secret']}
+TIGRIS_INSECURE_CHANNEL=false` : "TIGRIS_INSECURE_CHANNEL=true"}
+`
 
   console.log('Initializing Tigris quickstart application')
   initializeDirectoryStructure(outputDir)
@@ -99,10 +98,11 @@ async function generate (input) {
 }
 
 function initializeSourceCode (outputDir, config) {
+  initializeEnvFile(outputDir, config)
   initializeModels(outputDir)
   initializeRepositoryFile(outputDir)
   initializeIndexFile(outputDir)
-  initializeTigrisClientFile(outputDir, config)
+  initializeTigrisClientFile(outputDir)
 }
 
 function initializeDirectoryStructure (outputDir) {
@@ -132,6 +132,7 @@ function initializePackageFile (outputDir, packageName) {
   },
   "dependencies": {
     "@tigrisdata/core": "latest",
+    "dotenv": "^16.0.2",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
@@ -166,6 +167,10 @@ function initializeTSConfigFile (outputDir) {
 `
 
   fs.writeFileSync(outputDir + '/tsconfig.json', code)
+}
+
+function initializeEnvFile (outputDir, configContent) {
+  fs.writeFileSync(outputDir + '/.env', configContent)
 }
 
 function initializeRepositoryFile (outputDir) {
@@ -235,7 +240,10 @@ export class UsersRepository {
 }
 
 function initializeIndexFile (outputDir) {
-  const code = `// Importing Tigris client to connect
+  const code = `import dotenv from 'dotenv';
+dotenv.config();
+
+// Importing Tigris client to connect
 import {TigrisClient} from "./lib/tigrisClient";
 
 // Importing users
@@ -300,8 +308,8 @@ export const userSchema: TigrisSchema<User> = {
   fs.writeFileSync(outputDir + '/src/models/user.ts', code)
 }
 
-function initializeTigrisClientFile (outputDir, config) {
-  const code = `import { DB, Tigris } from "@tigrisdata/core";
+function initializeTigrisClientFile (outputDir) {
+  const code = `import {DB, Tigris, TigrisClientConfig} from "@tigrisdata/core";
 import { User, userSchema } from "../models/user";
 
 export class TigrisClient {
@@ -311,7 +319,10 @@ export class TigrisClient {
 
   constructor() {
     this.dbName = "hello_tigris";
-    this.tigris = new Tigris(${config});
+
+    const config = this.configFromEnv();
+    console.log("Connecting to Tigris at " + config.serverUrl);
+    this.tigris = new Tigris(config);
   }
 
   public get db(): DB {
@@ -339,6 +350,22 @@ export class TigrisClient {
   public dropCollection = async () => {
     const resp = await this._db.dropCollection("users");
     console.log(resp);
+  }
+
+  private configFromEnv(): TigrisClientConfig {
+    let config: TigrisClientConfig = {
+      serverUrl: process.env.TIGRIS_SERVER_URL
+    }
+
+    if ("TIGRIS_CLIENT_ID" in process.env) {
+      config["clientId"] = process.env.TIGRIS_CLIENT_ID;
+    }
+    if ("TIGRIS_CLIENT_SECRET" in process.env) {
+      config["clientSecret"] = process.env.TIGRIS_CLIENT_SECRET;
+    }
+    config["insecureChannel"] = process.env.TIGRIS_INSECURE_CHANNEL == "true";
+
+    return config;
   }
 }
 `

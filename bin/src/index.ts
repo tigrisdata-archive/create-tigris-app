@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 // Importing Tigris client to connect
 import {TigrisClient} from "./lib/tigrisClient";
 
