@@ -363,7 +363,9 @@ export class TigrisClient {
     if ("TIGRIS_CLIENT_SECRET" in process.env) {
       config["clientSecret"] = process.env.TIGRIS_CLIENT_SECRET;
     }
-    config["insecureChannel"] = process.env.TIGRIS_INSECURE_CHANNEL == "true";
+    if ("TIGRIS_INSECURE_CHANNEL" in process.env && process.env.TIGRIS_INSECURE_CHANNEL == "true") {
+      config["insecureChannel"] = true;
+    }
 
     return config;
   }
