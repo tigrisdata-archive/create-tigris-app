@@ -1,127 +1,135 @@
 #! /usr/bin/env node
-const fs = require('fs')
-const defaultOutputDir = process.cwd()
-const defaultPackageName = 'hello-tigris'
-const defaultServerUrl = 'localhost:8081'
+const fs = require("fs");
+const defaultOutputDir = process.cwd();
+const defaultPackageName = "hello-tigris";
+const defaultServerUrl = "localhost:8081";
 
-run()
+run();
 
-async function run () {
-  const input = await userInput()
-  await generate(input)
+async function run() {
+  const input = await userInput();
+  await generate(input);
 }
 
-async function userInput () {
-  const { prompt } = require('enquirer')
+async function userInput() {
+  const { prompt } = require("enquirer");
 
   let response = await prompt([
     {
-      type: 'input',
-      name: 'package-name',
-      message: 'What is the package-name (default: ' + defaultPackageName +
-        ') ?'
+      type: "input",
+      name: "package-name",
+      message:
+        "What is the package-name (default: " + defaultPackageName + ") ?",
     },
     {
-      type: 'input',
-      name: 'output-dir',
-      message: 'Where do you want the project to be generated (default: ' +
-        defaultOutputDir + ') ?'
+      type: "input",
+      name: "output-dir",
+      message:
+        "Where do you want the project to be generated (default: " +
+        defaultOutputDir +
+        ") ?",
     },
     {
-      type: 'input',
-      name: 'server-url',
-      message: 'What is the url for your Tigris instance (default: ' +
-        defaultServerUrl + ') ?'
+      type: "input",
+      name: "server-url",
+      message:
+        "What is the url for your Tigris instance (default: " +
+        defaultServerUrl +
+        ") ?",
     },
-  ])
+  ]);
 
-  if (requiresAuthSetup(response['server-url'])) {
+  if (requiresAuthSetup(response["server-url"])) {
     const identityResponse = await prompt([
       {
-        type: 'input',
-        name: 'client-id',
-        message: 'What is the clientId ?',
+        type: "input",
+        name: "client-id",
+        message: "What is the clientId ?",
       },
       {
-        type: 'password',
-        name: 'client-secret',
-        message: 'What is the client secret ?',
+        type: "password",
+        name: "client-secret",
+        message: "What is the client secret ?",
       },
-    ])
-    response = { ...response, ...identityResponse }
+    ]);
+    response = { ...response, ...identityResponse };
   }
 
-  return response
+  return response;
 }
 
-function requiresAuthSetup (inputUrl) {
+function requiresAuthSetup(inputUrl) {
   return !(
     inputUrl == null ||
-    inputUrl === 'undefined' ||
+    inputUrl === "undefined" ||
     inputUrl.length === 0 ||
-    inputUrl.includes('localhost') ||
-    inputUrl.includes('127.0.0.1') ||
-    inputUrl.includes('0.0.0.0')
-  )
+    inputUrl.includes("localhost") ||
+    inputUrl.includes("127.0.0.1") ||
+    inputUrl.includes("0.0.0.0")
+  );
 }
 
-async function generate (input) {
-  let outputDir = input['output-dir']
+async function generate(input) {
+  let outputDir = input["output-dir"];
   if (outputDir == null || outputDir.length === 0) {
-    outputDir = defaultOutputDir
+    outputDir = defaultOutputDir;
   }
-  let packageName = input['package-name']
+  let packageName = input["package-name"];
   if (packageName == null || packageName.length === 0) {
-    packageName = defaultPackageName
+    packageName = defaultPackageName;
   }
-  let tigrisUrl = input['server-url']
+  let tigrisUrl = input["server-url"];
   if (tigrisUrl == null || tigrisUrl.length === 0) {
-    tigrisUrl = defaultServerUrl
+    tigrisUrl = defaultServerUrl;
   }
 
   let configContent = `TIGRIS_SERVER_URL=${tigrisUrl}
-${requiresAuthSetup(tigrisUrl) ? `TIGRIS_CLIENT_ID=${input['client-id']}
-TIGRIS_CLIENT_SECRET=${input['client-secret']}
-TIGRIS_INSECURE_CHANNEL=false` : "TIGRIS_INSECURE_CHANNEL=true"}
-`
+${
+  requiresAuthSetup(tigrisUrl)
+    ? `TIGRIS_CLIENT_ID=${input["client-id"]}
+TIGRIS_CLIENT_SECRET=${input["client-secret"]}
+TIGRIS_INSECURE_CHANNEL=false`
+    : "TIGRIS_INSECURE_CHANNEL=true"
+}
+`;
 
-  console.log('Initializing Tigris quickstart application')
-  initializeDirectoryStructure(outputDir)
-  initializePackageFile(outputDir, packageName)
-  initializeTSConfigFile(outputDir)
-  initializeSourceCode(outputDir, configContent)
+  console.log("Initializing Tigris quickstart application");
+  initializeDirectoryStructure(outputDir);
+  initializePackageFile(outputDir, packageName);
+  initializeTSConfigFile(outputDir);
+  initializeSourceCode(outputDir, configContent);
 
-  console.log('🎉 Initialized the Tigris quickstart application successfully')
-  console.log('Run following command to install dependencies')
-  console.log('npm install')
-  console.log('Learn more at https://docs.tigrisdata.com/quickstart')
+  console.log("🎉 Initialized the Tigris quickstart application successfully");
+  console.log("Run following command to install dependencies");
+  console.log("npm install");
+  console.log("Learn more at https://docs.tigrisdata.com/quickstart");
 }
 
-function initializeSourceCode (outputDir, config) {
-  initializeEnvFile(outputDir, config)
-  initializeModels(outputDir)
-  initializeRepositoryFile(outputDir)
-  initializeIndexFile(outputDir)
-  initializeTigrisClientFile(outputDir)
+function initializeSourceCode(outputDir, config) {
+  initializeEnvFile(outputDir, config);
+  initializeModels(outputDir);
+  initializeRepositoryFile(outputDir);
+  initializeIndexFile(outputDir);
+  initializeTigrisClientFile(outputDir);
 }
 
-function initializeDirectoryStructure (outputDir) {
+function initializeDirectoryStructure(outputDir) {
   // create outputDir
   if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir)
+    fs.mkdirSync(outputDir);
   }
 
   // create src directory
-  const dirPaths = ['/src', '/src/models', '/src/repository', '/src/lib']
+  const dirPaths = ["/src", "/src/models", "/src/repository", "/src/lib"];
   dirPaths.forEach(function (element) {
-    const srcDir =  outputDir + element
+    const srcDir = outputDir + element;
     if (!fs.existsSync(srcDir)) {
-      fs.mkdirSync(srcDir)
+      fs.mkdirSync(srcDir);
     }
-  })
+  });
 }
 
-function initializePackageFile (outputDir, packageName) {
+function initializePackageFile(outputDir, packageName) {
   const code = `{
   "name": "${packageName}",
   "main": "index.js",
@@ -141,12 +149,12 @@ function initializePackageFile (outputDir, packageName) {
     "typescript": "^4.7.3"
   }
 }
-`
+`;
 
-  fs.writeFileSync(outputDir + '/package.json', code)
+  fs.writeFileSync(outputDir + "/package.json", code);
 }
 
-function initializeTSConfigFile (outputDir) {
+function initializeTSConfigFile(outputDir) {
   const code = `{
   "compilerOptions": {
     "experimentalDecorators": true,
@@ -165,16 +173,16 @@ function initializeTSConfigFile (outputDir) {
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*"]
 }
-`
+`;
 
-  fs.writeFileSync(outputDir + '/tsconfig.json', code)
+  fs.writeFileSync(outputDir + "/tsconfig.json", code);
 }
 
-function initializeEnvFile (outputDir, configContent) {
-  fs.writeFileSync(outputDir + '/.env', configContent)
+function initializeEnvFile(outputDir, configContent) {
+  fs.writeFileSync(outputDir + "/.env", configContent);
 }
 
-function initializeRepositoryFile (outputDir) {
+function initializeRepositoryFile(outputDir) {
   const code = `import {User} from "../models/user";
 import {Collection, DB} from "@tigrisdata/core";
 import {SelectorFilterOperator} from "@tigrisdata/core/dist/types";
@@ -206,7 +214,7 @@ export class UsersRepository {
   }
 
   // Read a user by ID
-  public findOne = async (id: number) => {
+  public findOne = async (id: string) => {
     const user = await this.users.findOne({
       userId: id,
     });
@@ -219,7 +227,7 @@ export class UsersRepository {
   }
 
   // Update a user record
-  public update = async (id: number, user: User) => {
+  public update = async (id: string, user: User) => {
     await this.users.update({
       userId: id,
     }, {
@@ -229,18 +237,18 @@ export class UsersRepository {
   }
 
   // Delete a user record
-  public delete = async (id: number) => {
+  public delete = async (id: string) => {
     await this.users.delete({
       userId: id,
     });
   }
 }
-`
+`;
 
-  fs.writeFileSync(outputDir + '/src/repository/users.ts', code)
+  fs.writeFileSync(outputDir + "/src/repository/users.ts", code);
 }
 
-function initializeIndexFile (outputDir) {
+function initializeIndexFile(outputDir) {
   const code = `import dotenv from 'dotenv';
 dotenv.config();
 
@@ -272,11 +280,11 @@ main()
     console.error(e)
     process.exit(1);
   })
-`
-  fs.writeFileSync(outputDir + '/src/index.ts', code)
+`;
+  fs.writeFileSync(outputDir + "/src/index.ts", code);
 }
 
-function initializeModels (outputDir) {
+function initializeModels(outputDir) {
   const code = `import {
   TigrisCollectionType,
   TigrisDataTypes,
@@ -284,14 +292,14 @@ function initializeModels (outputDir) {
 } from "@tigrisdata/core/dist/types";
 
 export interface User extends TigrisCollectionType {
-  userId?: number;
+  userId?: string;
   name: string;
   balance: number;
 }
 
 export const userSchema: TigrisSchema<User> = {
   userId: {
-    type: TigrisDataTypes.INT32,
+    type: TigrisDataTypes.INT64,
     primary_key: {
       order: 1,
       autoGenerate: true,
@@ -304,12 +312,12 @@ export const userSchema: TigrisSchema<User> = {
     type: TigrisDataTypes.NUMBER,
   },
 };
-`
+`;
 
-  fs.writeFileSync(outputDir + '/src/models/user.ts', code)
+  fs.writeFileSync(outputDir + "/src/models/user.ts", code);
 }
 
-function initializeTigrisClientFile (outputDir) {
+function initializeTigrisClientFile(outputDir) {
   const code = `import {DB, Tigris, TigrisClientConfig} from "@tigrisdata/core";
 import { User, userSchema } from "../models/user";
 
@@ -371,6 +379,6 @@ export class TigrisClient {
     return config;
   }
 }
-`
-  fs.writeFileSync(outputDir + '/src/lib/tigrisClient.ts', code)
+`;
+  fs.writeFileSync(outputDir + "/src/lib/tigrisClient.ts", code);
 }
