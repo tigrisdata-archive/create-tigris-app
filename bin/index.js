@@ -128,6 +128,7 @@ function initializePackageFile (outputDir, packageName) {
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && npm install && npx tsc",
+    "start": "npm install && npm run build && node dist/index.js",
     "test": "npx ts-node src/index.ts"
   },
   "dependencies": {
