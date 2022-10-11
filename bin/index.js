@@ -140,7 +140,7 @@ function initializePackageFile(outputDir, packageName) {
     "test": "npx ts-node src/index.ts"
   },
   "dependencies": {
-    "@tigrisdata/core": "latest",
+    "@tigrisdata/core": "beta",
     "dotenv": "^16.0.2",
     "ts-node": "^10.9.1"
   },

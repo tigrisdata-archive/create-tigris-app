@@ -4,6 +4,7 @@
   "description": "Utility to create typescript application to interact with Tigris database",
   "main": "index.js",
   "scripts": {
+    "clean": "rm -rf dist && rm -rf node_modules",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -19,7 +20,7 @@
   "dependencies": {
     "enquirer": "^2.3.6",
     "ts-node": "^10.9.1",
-    "@tigrisdata/core": "latest"
+    "@tigrisdata/core": "beta"
   },
   "devDependencies": {
     "@types/node": "^18.7.20"
