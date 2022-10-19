@@ -87,9 +87,8 @@ async function generate(input) {
 ${
   requiresAuthSetup(tigrisUrl)
     ? `TIGRIS_CLIENT_ID=${input["client-id"]}
-TIGRIS_CLIENT_SECRET=${input["client-secret"]}
-TIGRIS_INSECURE_CHANNEL=false`
-    : "TIGRIS_INSECURE_CHANNEL=true"
+TIGRIS_CLIENT_SECRET=${input["client-secret"]}`
+    : ""
 }
 `;
 
@@ -371,9 +370,6 @@ export class TigrisClient {
     }
     if ("TIGRIS_CLIENT_SECRET" in process.env) {
       config["clientSecret"] = process.env.TIGRIS_CLIENT_SECRET;
-    }
-    if ("TIGRIS_INSECURE_CHANNEL" in process.env && process.env.TIGRIS_INSECURE_CHANNEL == "true") {
-      config["insecureChannel"] = true;
     }
 
     return config;
