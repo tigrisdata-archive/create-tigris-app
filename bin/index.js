@@ -87,9 +87,8 @@ async function generate(input) {
 ${
   requiresAuthSetup(tigrisUrl)
     ? `TIGRIS_CLIENT_ID=${input["client-id"]}
-TIGRIS_CLIENT_SECRET=${input["client-secret"]}
-TIGRIS_INSECURE_CHANNEL=false`
-    : "TIGRIS_INSECURE_CHANNEL=true"
+TIGRIS_CLIENT_SECRET=${input["client-secret"]}`
+    : ""
 }
 `;
 
@@ -228,7 +227,7 @@ export class UsersRepository {
 
   // Update a user record
   public update = async (id: string, user: User) => {
-    await this.users.update({
+    await this.users.updateOne({
       userId: id,
     }, {
       name: user.name,
@@ -238,7 +237,7 @@ export class UsersRepository {
 
   // Delete a user record
   public delete = async (id: string) => {
-    await this.users.delete({
+    await this.users.deleteOne({
       userId: id,
     });
   }
@@ -371,9 +370,6 @@ export class TigrisClient {
     }
     if ("TIGRIS_CLIENT_SECRET" in process.env) {
       config["clientSecret"] = process.env.TIGRIS_CLIENT_SECRET;
-    }
-    if ("TIGRIS_INSECURE_CHANNEL" in process.env && process.env.TIGRIS_INSECURE_CHANNEL == "true") {
-      config["insecureChannel"] = true;
     }
 
     return config;
