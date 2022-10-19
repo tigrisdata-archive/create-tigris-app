@@ -227,7 +227,7 @@ export class UsersRepository {
 
   // Update a user record
   public update = async (id: string, user: User) => {
-    await this.users.update({
+    await this.users.updateOne({
       userId: id,
     }, {
       name: user.name,
@@ -237,7 +237,7 @@ export class UsersRepository {
 
   // Delete a user record
   public delete = async (id: string) => {
-    await this.users.delete({
+    await this.users.deleteOne({
       userId: id,
     });
   }
