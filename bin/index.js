@@ -2,7 +2,7 @@
 const fs = require("fs");
 const defaultOutputDir = process.cwd();
 const defaultPackageName = "hello-tigris";
-const defaultServerUrl = "localhost:8081";
+const defaultServerUrl = "api.preview.tigrisdata.cloud";
 
 run();
 
@@ -60,9 +60,6 @@ async function userInput() {
 
 function requiresAuthSetup(inputUrl) {
   return !(
-    inputUrl == null ||
-    inputUrl === "undefined" ||
-    inputUrl.length === 0 ||
     inputUrl.includes("localhost") ||
     inputUrl.includes("127.0.0.1") ||
     inputUrl.includes("0.0.0.0")
@@ -83,7 +80,7 @@ async function generate(input) {
     tigrisUrl = defaultServerUrl;
   }
 
-  let configContent = `TIGRIS_SERVER_URL=${tigrisUrl}
+  let configContent = `TIGRIS_URI=${tigrisUrl}
 ${
   requiresAuthSetup(tigrisUrl)
     ? `TIGRIS_CLIENT_ID=${input["client-id"]}
@@ -362,7 +359,7 @@ export class TigrisClient {
 
   private configFromEnv(): TigrisClientConfig {
     let config: TigrisClientConfig = {
-      serverUrl: process.env.TIGRIS_SERVER_URL
+      serverUrl: process.env.TIGRIS_URI
     }
 
     if ("TIGRIS_CLIENT_ID" in process.env) {
