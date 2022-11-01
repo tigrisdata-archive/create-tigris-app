@@ -107,6 +107,7 @@ function initializeSourceCode(outputDir, config) {
   initializeRepositoryFile(outputDir);
   initializeIndexFile(outputDir);
   initializeTigrisClientFile(outputDir);
+  initializeSetupFile(outputDir);
 }
 
 function initializeDirectoryStructure(outputDir) {
@@ -116,7 +117,7 @@ function initializeDirectoryStructure(outputDir) {
   }
 
   // create src directory
-  const dirPaths = ["/src", "/src/models", "/src/repository", "/src/lib"];
+  const dirPaths = ["/scripts", "/src", "/src/lib", "/src/models", "/src/models/hello_tigris", "/src/repository"];
   dirPaths.forEach(function (element) {
     const srcDir = outputDir + element;
     if (!fs.existsSync(srcDir)) {
@@ -131,9 +132,12 @@ function initializePackageFile(outputDir, packageName) {
   "main": "index.js",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && npm install && npx tsc",
-    "start": "npm install && npm run build && node dist/index.js",
-    "test": "npx ts-node src/index.ts"
+    "prebuild": "npm run clean && npm install",
+    "build": "npx tsc",
+    "postbuild": "npm run setup",
+    "setup": "npx ts-node scripts/setup.ts",
+    "prestart": "npm run build",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@tigrisdata/core": "beta",
@@ -179,7 +183,7 @@ function initializeEnvFile(outputDir, configContent) {
 }
 
 function initializeRepositoryFile(outputDir) {
-  const code = `import {User} from "../models/user";
+  const code = `import {User} from "../models/hello_tigris/user";
 import {Collection, DB} from "@tigrisdata/core";
 import {SelectorFilterOperator} from "@tigrisdata/core/dist/types";
 import {SearchRequest, SearchResult} from "@tigrisdata/core/dist/search/types";
@@ -188,7 +192,7 @@ export class UsersRepository {
   private readonly users: Collection<User>;
 
   constructor(db: DB) {
-    this.users = db.getCollection<User>("users");
+    this.users = db.getCollection<User>("user");
   }
 
   // TODO: Add implementation
@@ -248,22 +252,12 @@ function initializeIndexFile(outputDir) {
   const code = `import dotenv from 'dotenv';
 dotenv.config();
 
-// Importing Tigris client to connect
-import {TigrisClient} from "./lib/tigrisClient";
-
-// Importing users
+import tigrisDB from "./lib/tigris";
 import {UsersRepository} from "./repository/users";
 
-const tigris = new TigrisClient();
-
 async function main() {
-  // Connect to Tigris, create the database if it does not exist.
-  // Create the collections from the models if they don't exist, or
-  // update the schema of the collections based on the model definition
-  await tigris.setup();
-
   // initialize the repository
-  const repository = new UsersRepository(tigris.db);
+  const repository = new UsersRepository(tigrisDB);
 
   // TODO: perform queries
 }
@@ -310,68 +304,48 @@ export const userSchema: TigrisSchema<User> = {
 };
 `;
 
-  fs.writeFileSync(outputDir + "/src/models/user.ts", code);
+  fs.writeFileSync(outputDir + "/src/models/hello_tigris/user.ts", code);
 }
 
 function initializeTigrisClientFile(outputDir) {
-  const code = `import {DB, Tigris, TigrisClientConfig} from "@tigrisdata/core";
-import { User, userSchema } from "../models/user";
+  const code = `import {Tigris} from "@tigrisdata/core";
 
-export class TigrisClient {
-  private readonly dbName: string;
-  private readonly tigris: Tigris;
-  private _db: DB;
+const DBNAME = "hello_tigris";
+const tigrisClient = new Tigris();
+const tigrisDB = tigrisClient.getDatabase(DBNAME);
 
-  constructor() {
-    this.dbName = "hello_tigris";
-
-    const config = this.configFromEnv();
-    console.log("Connecting to Tigris at " + config.serverUrl);
-    this.tigris = new Tigris(config);
-  }
-
-  public get db(): DB {
-    return this._db;
-  }
-
-  public async setup() {
-    await this.initializeTigris();
-  }
-
-  public async initializeTigris() {
-    // create database (if not exists)
-    console.log("creating db if it doesn't exist: " + this.dbName);
-    this._db = await this.tigris.createDatabaseIfNotExists(this.dbName);
-    console.log("db: " + this.dbName + " created successfully");
-
-    // register collections schema and wait for it to finish
-    console.log("creating collections if they don't exit, otherwise updating their schema")
-    await Promise.all([
-      this._db.createOrUpdateCollection<User>("users", userSchema),
-    ]);
-    console.log("collections created/updated successfully")
-  }
-
-  public dropCollection = async () => {
-    const resp = await this._db.dropCollection("users");
-    console.log(resp);
-  }
-
-  private configFromEnv(): TigrisClientConfig {
-    let config: TigrisClientConfig = {
-      serverUrl: process.env.TIGRIS_URI
-    }
-
-    if ("TIGRIS_CLIENT_ID" in process.env) {
-      config["clientId"] = process.env.TIGRIS_CLIENT_ID;
-    }
-    if ("TIGRIS_CLIENT_SECRET" in process.env) {
-      config["clientSecret"] = process.env.TIGRIS_CLIENT_SECRET;
-    }
-
-    return config;
-  }
-}
+export default tigrisDB;
 `;
-  fs.writeFileSync(outputDir + "/src/lib/tigrisClient.ts", code);
+  fs.writeFileSync(outputDir + "/src/lib/tigris.ts", code);
+}
+
+function initializeSetupFile(outputDir) {
+  const code = `import * as dotenv from "dotenv";
+dotenv.config();
+
+// @ts-ignore
+import path from 'path';
+import {Tigris} from "@tigrisdata/core";
+
+async function main() {
+  if (!process.env.TIGRIS_URI) {
+    console.log('Cannot find TIGRIS_URI environment variable ');
+    process.exit(1);
+  }
+
+  // setup client
+  const tigrisClient = new Tigris();
+  await tigrisClient.registerSchemas(path.join(process.cwd(), 'src/models'));
+}
+
+main()
+  .then(async () => {
+    console.log("Setup complete ...");
+  })
+  .catch(async (e) => {
+    console.error(e);
+    process.exit(1);
+  });
+`;
+  fs.writeFileSync(outputDir + "/scripts/setup.ts", code);
 }
