@@ -1,6 +1,6 @@
 {
   "name": "@tigrisdata/create-tigris-app",
-  "version": "1.0.0-beta.7",
+  "version": "1.0.0-beta.8",
   "description": "Utility to create typescript application to interact with Tigris database",
   "main": "index.js",
   "scripts": {

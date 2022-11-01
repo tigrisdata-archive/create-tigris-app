@@ -323,8 +323,6 @@ function initializeSetupFile(outputDir) {
   const code = `import * as dotenv from "dotenv";
 dotenv.config();
 
-// @ts-ignore
-import path from 'path';
 import {Tigris} from "@tigrisdata/core";
 
 async function main() {
@@ -335,7 +333,7 @@ async function main() {
 
   // setup client
   const tigrisClient = new Tigris();
-  await tigrisClient.registerSchemas(path.join(process.cwd(), 'src/models'));
+  await tigrisClient.registerSchemas('src/models');
 }
 
 main()
