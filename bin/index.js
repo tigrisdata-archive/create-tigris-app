@@ -339,6 +339,7 @@ async function main() {
 main()
   .then(async () => {
     console.log("Setup complete ...");
+    process.exit(0);
   })
   .catch(async (e) => {
     console.error(e);
