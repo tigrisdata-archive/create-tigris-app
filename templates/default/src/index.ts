@@ -1,8 +1,8 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 import tigrisDB from "./lib/tigris";
-import {UsersRepository} from "./repository/users";
+import { UsersRepository } from "./repository/users";
 
 async function main() {
   // initialize the repository
@@ -13,9 +13,9 @@ async function main() {
 
 main()
   .then(async () => {
-    console.log("All done ...")
+    console.log("All done ...");
   })
   .catch(async (e) => {
-    console.error(e)
+    console.error(e);
     process.exit(1);
-  })
+  });

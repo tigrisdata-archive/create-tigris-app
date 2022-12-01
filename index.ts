@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 /* eslint-disable import/no-extraneous-dependencies */
 import chalk from "chalk";
-import Commander from 'commander';
-import path from 'path';
-import prompts from 'prompts';
-import checkForUpdate from 'update-check'
-import packageJson from './package.json';
-import {getPkgManager, PackageManager} from './helpers/get-pkg-manager'
-import {validTemplate} from "./helpers/template";
-import {validateNpmName} from "./helpers/validate-pkg";
-import {createApp} from "./helpers/create-app";
+import Commander from "commander";
+import path from "path";
+import prompts from "prompts";
+import checkForUpdate from "update-check";
+import packageJson from "./package.json";
+import { getPkgManager, PackageManager } from "./helpers/get-pkg-manager";
+import { validTemplate } from "./helpers/template";
+import { validateNpmName } from "./helpers/validate-pkg";
+import { createApp } from "./helpers/create-app";
 
 const defaultProjectName = "my-app";
-let projectPath: string = '';
+let projectPath: string = "";
 let templateName: string;
 let clientId: string;
 let clientSecret: string;
@@ -21,39 +21,39 @@ let packageManager: PackageManager;
 const program = new Commander.Command(packageJson.name)
   .version(packageJson.version)
   .option(
-    '--use-npm',
+    "--use-npm",
     `
   Explicitly tell the CLI to bootstrap the app using npm
 `
   )
   .option(
-    '--use-pnpm',
+    "--use-pnpm",
     `
   Explicitly tell the CLI to bootstrap the app using pnpm
 `
   )
   .option(
-    '-e, --example [template]',
+    "-e, --example [template]",
     `
   An example to bootstrap the app with. You can use one of the
   templates from the create-tigris-app repo
 `
   )
   .option(
-    '-p, --project [name]',
+    "-p, --project [name]",
     `
   The name of the project. This will be used to derive the
   project directory name and the package name
 `
   )
   .option(
-    '-i, --client-id [id]',
+    "-i, --client-id [id]",
     `
   The clientID project will use to connect to Tigris
 `
   )
   .option(
-    '-s, --client-secret [secret]',
+    "-s, --client-secret [secret]",
     `
   The clientSecret project will use to connect to Tigris
 `
@@ -65,43 +65,45 @@ const program = new Commander.Command(packageJson.name)
     clientId = options.clientId;
     clientSecret = options.clientSecret;
     packageManager = !!options.useNpm
-      ? 'npm'
+      ? "npm"
       : !!options.usePnpm
-        ? 'pnpm'
-        : getPkgManager();
+      ? "pnpm"
+      : getPkgManager();
   })
   .parse(process.argv);
 
 async function run(): Promise<void> {
   if (!projectPath) {
     const res = await prompts({
-      type: 'text',
-      name: 'path',
-      message: 'What is your project named?',
+      type: "text",
+      name: "path",
+      message: "What is your project named?",
       initial: defaultProjectName,
       validate: (name) => {
-        const validation = validateNpmName(path.basename(path.resolve(name)))
+        const validation = validateNpmName(path.basename(path.resolve(name)));
         if (validation.valid) {
-          return true
+          return true;
         }
-        return 'Invalid project name: ' + validation.problems![0]
+        return "Invalid project name: " + validation.problems![0];
       },
     });
 
-    if (typeof res.path === 'string') {
+    if (typeof res.path === "string") {
       projectPath = res.path.trim();
     }
   }
 
   if (!projectPath) {
     console.error(
-      '\nPlease specify the project directory:\n' +
-      `  ${chalk.cyan(program.name())} --project ${chalk.green(
-        '<project-directory>'
-      )}\n` +
-      'For example:\n' +
-      `  ${chalk.cyan(program.name())} --project ${chalk.green('my-app')}\n\n` +
-      `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
+      "\nPlease specify the project directory:\n" +
+        `  ${chalk.cyan(program.name())} --project ${chalk.green(
+          "<project-directory>"
+        )}\n` +
+        "For example:\n" +
+        `  ${chalk.cyan(program.name())} --project ${chalk.green(
+          "my-app"
+        )}\n\n` +
+        `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
     );
     process.exit(1);
   }
@@ -111,7 +113,7 @@ async function run(): Promise<void> {
   const resolvedProjectPath = path.resolve(projectPath);
   const projectName = path.basename(resolvedProjectPath);
 
-  const {valid, problems} = validateNpmName(projectName);
+  const { valid, problems } = validateNpmName(projectName);
   if (!valid) {
     console.error(
       `Could not create a project called ${chalk.red(
@@ -119,48 +121,53 @@ async function run(): Promise<void> {
       )} because of npm naming restrictions:`
     );
 
-    problems!.forEach((p) => console.error(`    ${chalk.red.bold('*')} ${p}`));
+    problems!.forEach((p) => console.error(`    ${chalk.red.bold("*")} ${p}`));
     process.exit(1);
   }
 
   // set up the clientId and clientSecret
   if (!clientId || !clientSecret) {
-    const res = await prompts([{
-      type: 'text',
-      name: 'id',
-      message: 'What is the clientId?',
-      validate: (name) => {
-        if (typeof name === 'string' && name.trim().length > 0) {
-          return true
-        }
-        return 'The clientId cannot be empty'
+    const res = await prompts([
+      {
+        type: "text",
+        name: "id",
+        message: "What is the clientId?",
+        validate: (name) => {
+          if (typeof name === "string" && name.trim().length > 0) {
+            return true;
+          }
+          return "The clientId cannot be empty";
+        },
       },
-    }, {
-      type: 'password',
-      name: 'secret',
-      message: 'What is the clientSecret?',
-      validate: (name) => {
-        if (typeof name === 'string' && name.trim().length > 0) {
-          return true
-        }
-        return 'The clientSecret cannot be empty'
+      {
+        type: "password",
+        name: "secret",
+        message: "What is the clientSecret?",
+        validate: (name) => {
+          if (typeof name === "string" && name.trim().length > 0) {
+            return true;
+          }
+          return "The clientSecret cannot be empty";
+        },
       },
-    }]);
+    ]);
 
-    if (typeof res.id === 'string') {
+    if (typeof res.id === "string") {
       clientId = res.id.trim();
     }
-    if (typeof res.secret === 'string') {
+    if (typeof res.secret === "string") {
       clientSecret = res.secret.trim();
     }
   }
 
   if (!clientId || !clientSecret) {
     console.error(
-      '\nPlease specify the clientId and clientSecret\n' +
-      'For example:\n' +
-      `  ${chalk.cyan(program.name())} --client-id ${chalk.green('xxx')} --client-secret ${chalk.green('xxx')}\n\n` +
-      `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
+      "\nPlease specify the clientId and clientSecret\n" +
+        "For example:\n" +
+        `  ${chalk.cyan(program.name())} --client-id ${chalk.green(
+          "xxx"
+        )} --client-secret ${chalk.green("xxx")}\n\n` +
+        `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
     );
     process.exit(1);
   }
@@ -170,8 +177,8 @@ async function run(): Promise<void> {
     templateName = templateName.trim();
     if (!validTemplate(templateName)) {
       console.error(
-        '\nPlease specify one of the supported templates\n' +
-        `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
+        "\nPlease specify one of the supported templates\n" +
+          `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
       );
       process.exit(1);
     }
@@ -180,7 +187,8 @@ async function run(): Promise<void> {
   await createApp({
     appPath: resolvedProjectPath,
     packageManager,
-    example: templateName && templateName !== 'default' ? templateName : undefined,
+    example:
+      templateName && templateName !== "default" ? templateName : undefined,
     clientId,
     clientSecret,
   });
@@ -190,24 +198,26 @@ const update = checkForUpdate(packageJson).catch(() => null);
 
 async function notifyUpdate(): Promise<void> {
   try {
-    const res = await update
+    const res = await update;
     if (res?.latest) {
       const updateMessage =
-        packageManager === 'yarn'
-          ? 'yarn global add @tigrisdata/create-tigris-app'
-          : packageManager === 'pnpm'
-            ? 'pnpm add -g @tigrisdata/create-tigris-app'
-            : 'npm i -g @tigrisdata/create-tigris-app'
+        packageManager === "yarn"
+          ? "yarn global add @tigrisdata/create-tigris-app"
+          : packageManager === "pnpm"
+          ? "pnpm add -g @tigrisdata/create-tigris-app"
+          : "npm i -g @tigrisdata/create-tigris-app";
 
       console.log(
-        chalk.yellow.bold('A new version of `@tigrisdata/create-tigris-app` is available!') +
-        '\n' +
-        'You can update by running: ' +
-        chalk.cyan(updateMessage) +
-        '\n'
-      )
+        chalk.yellow.bold(
+          "A new version of `@tigrisdata/create-tigris-app` is available!"
+        ) +
+          "\n" +
+          "You can update by running: " +
+          chalk.cyan(updateMessage) +
+          "\n"
+      );
     }
-    process.exit()
+    process.exit();
   } catch {
     // ignore error
   }
@@ -216,19 +226,19 @@ async function notifyUpdate(): Promise<void> {
 run()
   .then(notifyUpdate)
   .catch(async (reason) => {
-    console.log()
-    console.log('Aborting installation.')
+    console.log();
+    console.log("Aborting installation.");
     if (reason.command) {
-      console.log(`  ${chalk.cyan(reason.command)} has failed.`)
+      console.log(`  ${chalk.cyan(reason.command)} has failed.`);
     } else {
       console.log(
-        chalk.red('Unexpected error. Please report it as a bug:') + '\n',
+        chalk.red("Unexpected error. Please report it as a bug:") + "\n",
         reason
-      )
+      );
     }
-    console.log()
+    console.log();
 
-    await notifyUpdate()
+    await notifyUpdate();
 
-    process.exit(1)
-  })
+    process.exit(1);
+  });

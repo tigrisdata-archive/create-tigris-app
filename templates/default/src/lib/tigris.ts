@@ -1,4 +1,4 @@
-import {Tigris} from "@tigrisdata/core";
+import { Tigris } from "@tigrisdata/core";
 
 const DBNAME = "hello_tigris";
 const tigrisClient = new Tigris();
