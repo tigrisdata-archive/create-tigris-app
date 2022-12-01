@@ -1,28 +1,52 @@
 {
   "name": "@tigrisdata/create-tigris-app",
-  "version": "1.0.0-beta.8",
-  "description": "Utility to create typescript application to interact with Tigris database",
-  "main": "index.js",
-  "scripts": {
-    "clean": "rm -rf dist && rm -rf node_modules",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "version": "1.0.0-beta.9",
   "keywords": [
     "database",
+    "tigris",
     "starter"
   ],
-  "author": "",
-  "bin": {
-    "create-tigris-app": "bin/index.js"
-  },
+  "description": "Utility to create typescript application to interact with Tigris database",
   "repository": "github:tigrisdata/create-tigris-app",
+  "author": "Tigris team <support@tigrisdata.com>",
   "license": "Apache 2.0",
+  "bin": {
+    "create-tigris-app": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prebuild": "rimraf ./dist/",
+    "build": "npx tsc && chmod +x ./dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
   "dependencies": {
+    "@tigrisdata/core": "latest",
+    "@types/app-root-path": "^1.2.4",
+    "app-root-path": "^3.1.0",
+    "dotenv": "^16.0.2",
     "enquirer": "^2.3.6",
-    "ts-node": "^10.9.1",
-    "@tigrisdata/core": "beta"
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
-    "@types/node": "^18.7.20"
+    "@types/cross-spawn": "6.0.0",
+    "@types/node": "^18.7.20",
+    "@types/prompts": "2.0.1",
+    "@types/rimraf": "3.0.0",
+    "@types/validate-npm-package-name": "3.0.0",
+    "chalk": "2.4.2",
+    "commander": "^9.4.1",
+    "cpy": "7.3.0",
+    "cross-spawn": "6.0.5",
+    "npm-packlist": "^7.0.2",
+    "prompts": "^2.4.2",
+    "rimraf": "3.0.2",
+    "typescript": "^4.7.3",
+    "update-check": "1.5.4",
+    "validate-npm-package-name": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=14.6.0"
   }
 }
