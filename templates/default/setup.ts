@@ -1,6 +1,3 @@
-import * as dotenv from "dotenv";
-dotenv.config();
-
 import * as path from "path";
 import { Tigris } from "@tigrisdata/core";
 
