@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import { Tigris } from "@tigrisdata/core";
 import { UsersRepository } from "./repository/users";
 

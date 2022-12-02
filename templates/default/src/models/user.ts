@@ -4,7 +4,7 @@ import {
   TigrisSchema,
 } from "@tigrisdata/core/dist/types";
 
-export const USER_COLLECTION_NAME = "users";
+export const USER_COLLECTION_NAME = "user";
 
 export interface User extends TigrisCollectionType {
   userId?: string;
