@@ -1,12 +1,13 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
+import * as path from "path";
 import { Tigris } from "@tigrisdata/core";
 
 async function main() {
   // setup client
   const tigrisClient = new Tigris();
-  await tigrisClient.registerSchemas("src/models");
+  await tigrisClient.registerSchemas(path.join(__dirname, "src/models"));
 }
 
 main()

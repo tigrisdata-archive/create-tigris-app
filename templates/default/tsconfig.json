@@ -9,7 +9,7 @@
     "noImplicitAny": false,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "typeRoots": ["node_modules/@types"],
     "esModuleInterop": true
   },

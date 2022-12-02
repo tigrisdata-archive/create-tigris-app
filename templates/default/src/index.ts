@@ -1,12 +1,16 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import tigrisDB from "./lib/tigris";
+import { Tigris } from "@tigrisdata/core";
 import { UsersRepository } from "./repository/users";
 
 async function main() {
+  // initialize the client
+  const tigrisClient = new Tigris();
+  const db = tigrisClient.getDatabase();
+
   // initialize the repository
-  const repository = new UsersRepository(tigrisDB);
+  const repository = new UsersRepository(db);
 
   // TODO: perform queries
 }

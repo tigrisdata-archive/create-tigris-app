@@ -83,7 +83,7 @@ export const installTemplate = async ({
       prebuild: "npm run clean && npm install",
       build: "npx tsc",
       postbuild: "npm run setup",
-      setup: "npx ts-node scripts/setup.ts",
+      setup: "npx ts-node setup.ts",
       prestart: "npm run build",
       start: "node dist/index.js",
     },
