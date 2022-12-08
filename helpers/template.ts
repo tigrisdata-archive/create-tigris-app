@@ -1,5 +1,5 @@
 import { PackageManager } from "./get-pkg-manager";
-import { install } from "./install";
+import { writePackageJson } from "./package-json";
 
 import chalk from "chalk";
 import cpy from "cpy";
@@ -72,61 +72,25 @@ export const installTemplate = async ({
   console.log(chalk.bold(`Using ${packageManager}.`));
 
   /**
-   * Create a package.json for the new project.
+   * Set up the template path.
    */
-  const packageJson = {
-    name: appName,
-    version: "0.1.0",
-    private: true,
-    scripts: {
-      clean: "rm -rf dist",
-      prebuild: "npm run clean && npm install",
-      build: "npx tsc",
-      postbuild: "npm run setup",
-      setup: "npx ts-node setup.ts",
-      prestart: "npm run build",
-      start: "node dist/index.js",
-    },
-  };
-  /**
-   * Write it to disk.
-   */
-  fs.writeFileSync(
-    path.join(root, "package.json"),
-    JSON.stringify(packageJson, null, 2) + os.EOL
-  );
-  /**
-   * These flags will be passed to `install()`, which calls the package manager
-   * install process.
-   */
-  const installFlags = { packageManager, isOnline };
-  /**
-   * Default dependencies.
-   */
-  const dependencies = ["@tigrisdata/core", "dotenv", "typescript", "ts-node"];
+  const templatePath = path.join(templatesRoot, template);
 
   /**
-   * Default eslint dependencies.
+   * Set up the package.json and install dependencies.
    */
-  dependencies.push("eslint");
-  /**
-   * Install package.json dependencies if they exist.
-   */
-  if (dependencies.length) {
-    console.log();
-    console.log("Installing dependencies:");
-    for (const dependency of dependencies) {
-      console.log(`- ${chalk.cyan(dependency)}`);
-    }
-    console.log();
+  await writePackageJson({
+    appName,
+    templatePath,
+    root,
+    packageManager,
+    isOnline,
+  });
 
-    await install(root, dependencies, installFlags);
-  }
   /**
    * Copy the template files to the target directory.
    */
   console.log("\nInitializing project with template:", template, "\n");
-  const templatePath = path.join(templatesRoot, template);
   await cpy("**", root, {
     parents: true,
     cwd: templatePath,
