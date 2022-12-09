@@ -1,5 +1,5 @@
 import express from "express";
-import routes from "api";
+import routes from "./api";
 
 async function startServer() {
   const port = process.env.PORT || 3000;
@@ -27,3 +27,5 @@ async function startServer() {
 🚀 Server ready at: http://localhost:${port} ⭐️`)
   );
 }
+
+startServer();

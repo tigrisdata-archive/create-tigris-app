@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Tigris } from "@tigrisdata/core";
+import { DB } from "@tigrisdata/core";
 import { User, USER_COLLECTION_NAME } from "../../models/user";
 import { Post, POST_COLLECTION_NAME } from "../../models/post";
 import {
@@ -8,49 +8,29 @@ import {
   SortOrder,
 } from "@tigrisdata/core/dist/search/types";
 
-const route = Router();
-const tigrisClient = new Tigris();
-
-export default (app: Router) => {
-  const db = tigrisClient.getDatabase();
+export default (app: Router, db: DB) => {
   const userCollection = db.getCollection<User>(USER_COLLECTION_NAME);
   const postCollection = db.getCollection<Post>(POST_COLLECTION_NAME);
 
-  route.post(`/signup`, async (req, res) => {
-    const { name, email, posts } = req.body;
-
-    let createdUser: User;
-    db.transact(async (tx) => {
-      userCollection
-        .insertOne({ name, email }, tx)
-        .then((result) => (createdUser = result))
-        .catch((error) => {
-          throw new Error(`Failed to add author: ${error}`);
-        });
-
-      const postData = posts?.map((post: Post) => {
-        return {
-          title: post?.title,
-          content: post?.content,
-          authorId: createdUser.id,
-          published: false,
-          viewCount: 0,
-        };
-      });
-
-      postCollection.insertMany(postData, tx).catch((error) => {
-        throw new Error(`Failed to add posts: ${error}`);
-      });
-    })
-      .then(() => {
-        res.json(createdUser);
-      })
-      .catch((error) => {
-        res.json({ error: error });
-      });
+  app.get("/users", async (req, res) => {
+    const userCursor = userCollection.findMany();
+    const users = await userCursor.toArray();
+    res.json(users);
   });
 
-  route.post(`/post`, async (req, res) => {
+  app.get("/user/:id/drafts", async (req, res) => {
+    const { id } = req.params;
+
+    const cursor = postCollection.findMany({
+      authorId: id,
+      published: false,
+    });
+    const drafts = await cursor.toArray();
+
+    res.json(drafts);
+  });
+
+  app.post(`/post`, async (req, res) => {
     const { title, content, authorEmail } = req.body;
 
     let createdPost: Post;
@@ -69,13 +49,16 @@ export default (app: Router) => {
       }
 
       postCollection
-        .insertOne({
-          title,
-          content,
-          authorId: user.id,
-          published: false,
-          viewCount: 0,
-        })
+        .insertOne(
+          {
+            title: title,
+            content: content,
+            authorId: user.id,
+            published: false,
+            viewCount: 0,
+          },
+          tx
+        )
         .then((result) => (createdPost = result))
         .catch((error) => {
           throw new Error(`Failed to add post: ${error}`);
@@ -89,7 +72,37 @@ export default (app: Router) => {
       });
   });
 
-  route.put("/post/:id/views", async (req, res) => {
+  app.get(`/post/:id`, async (req, res) => {
+    const { id } = req.params;
+
+    postCollection
+      .findOne({
+        id: id,
+      })
+      .then((post) => {
+        if (post === undefined) {
+          res.status(404).json({
+            error: `Post with ID ${id} does not exist in the database`,
+          });
+        } else {
+          res.status(200).json(post);
+        }
+      })
+      .catch((err) => res.status(500).json({ error: err }));
+  });
+
+  app.delete(`/post/:id`, async (req, res) => {
+    const { id } = req.params;
+
+    postCollection
+      .deleteOne({
+        id: id,
+      })
+      .then((result) => res.status(200).json(result))
+      .catch((err) => res.status(500).json({ error: err }));
+  });
+
+  app.put("/post/:id/views", async (req, res) => {
     const { id } = req.params;
 
     let post: Post;
@@ -117,6 +130,7 @@ export default (app: Router) => {
           tx
         )
         .catch((error) => {
+          console.log(error);
           throw new Error(`Failed to update post views: ${error}`);
         });
     })
@@ -128,7 +142,7 @@ export default (app: Router) => {
       });
   });
 
-  route.put("/publish/:id", async (req, res) => {
+  app.put("/post/:id/publish", async (req, res) => {
     const { id } = req.params;
 
     let post: Post;
@@ -162,48 +176,10 @@ export default (app: Router) => {
       .then(() => {
         res.json(post);
       })
-      .catch((error) => {
-        res.json({ error: error });
-      });
+      .catch((err) => res.status(500).json({ error: err }));
   });
 
-  route.delete(`/post/:id`, async (req, res) => {
-    const { id } = req.params;
-
-    const result = await postCollection.deleteOne({
-      id: id,
-    });
-    res.json(result);
-  });
-
-  route.get("/users", async (req, res) => {
-    const userCursor = userCollection.findMany();
-    const users = await userCursor.toArray();
-    res.json(users);
-  });
-
-  route.get("/user/:id/drafts", async (req, res) => {
-    const { id } = req.params;
-
-    const cursor = postCollection.findMany({
-      authorId: id,
-      published: false,
-    });
-    const drafts = cursor.toArray();
-
-    res.json(drafts);
-  });
-
-  route.get(`/post/:id`, async (req, res) => {
-    const { id }: { id?: string } = req.params;
-
-    const post = await postCollection.findOne({
-      id: id,
-    });
-    res.json(post);
-  });
-
-  route.get("/feed", async (req, res) => {
+  app.get("/search", async (req, res) => {
     const { searchString, page, size, orderBy } = req.query;
 
     const request: SearchRequest<Post> = {
@@ -213,7 +189,7 @@ export default (app: Router) => {
         {
           field: "updatedAt",
           order:
-            orderBy.toString().toLowerCase() == "asc"
+            orderBy?.toString().toLowerCase() == "asc"
               ? SortOrder.ASC
               : SortOrder.DESC,
         },
@@ -224,8 +200,8 @@ export default (app: Router) => {
     };
 
     const options: SearchRequestOptions = {
-      page: Number(page),
-      perPage: Number(size),
+      page: Number(page) || undefined,
+      perPage: Number(size) || undefined,
     };
 
     postCollection
@@ -237,8 +213,6 @@ export default (app: Router) => {
         }
         res.json(posts);
       })
-      .catch((error) => {
-        res.json({ error: `Failed to retrieve posts: ${error}` });
-      });
+      .catch((err) => res.status(500).json({ error: err }));
   });
 };
