@@ -9,49 +9,10 @@ export class UsersRepository {
     this.users = db.getCollection<User>(USER_COLLECTION_NAME);
   }
 
-  // TODO: Add implementation
   // Create a user record
   public create = async (user: User) => {
     const createdUser = await this.users.insertOne(user);
     console.log(createdUser);
-  };
-
-  // TODO: Add implementation
-  // Read all users from the collection
-  public findAll = async () => {
-    const usersCursor = this.users.findMany();
-    try {
-      for await (const user of usersCursor) {
-        console.log(
-          `UserId: ${user.userId}, Name: ${user.name}, Balance: ${user.balance}`
-        );
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  // TODO: Add implementation
-  // Search user records by name
-  public search = async (name: string) => {
-    const request: SearchRequest<User> = {
-      q: name,
-      searchFields: ["name"],
-    };
-    const results = this.users.searchStream(request);
-    try {
-      for await (const res of results) {
-        console.log(`Search results found: ${res.meta.found}`);
-        for (let hit of res.hits) {
-          const user = hit.document;
-          console.log(
-            `UserId: ${user.userId}, Name: ${user.name}, Balance: ${user.balance}`
-          );
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
   };
 
   // Read a user by ID
@@ -85,5 +46,41 @@ export class UsersRepository {
     await this.users.deleteOne({
       userId: id,
     });
+  };
+
+  // Read all users from the collection
+  public findAll = async () => {
+    const usersCursor = this.users.findMany();
+    try {
+      for await (const user of usersCursor) {
+        console.log(
+          `UserId: ${user.userId}, Name: ${user.name}, Balance: ${user.balance}`
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Search user records by name
+  public search = async (name: string) => {
+    const request: SearchRequest<User> = {
+      q: name,
+      searchFields: ["name"],
+    };
+    const results = this.users.searchStream(request);
+    try {
+      for await (const res of results) {
+        console.log(`Search results found: ${res.meta.found}`);
+        for (let hit of res.hits) {
+          const user = hit.document;
+          console.log(
+            `UserId: ${user.userId}, Name: ${user.name}, Balance: ${user.balance}`
+          );
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 }
