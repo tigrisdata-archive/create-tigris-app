@@ -4,6 +4,7 @@ import { DB } from "@tigrisdata/core";
 import { User, USER_COLLECTION_NAME } from "../../models/user";
 import { Post, POST_COLLECTION_NAME } from "../../models/post";
 import middlewares from "../middlewares";
+import { APIError, HttpStatusCode } from "../../utils/errors";
 
 const apiSchema = z.object({
   body: z.object({
@@ -37,13 +38,31 @@ export default (app: Router, db: DB) => {
   app.post(
     `/signup`,
     middlewares.validateInput(apiSchema),
-    async (req, res) => {
+    async (req, res, next) => {
       const { name, email, posts } = req.body;
 
       let createdUser: User;
       let createdPosts: Post[];
       db.transact(async (tx) => {
+        const user = await userCollection.findOne(
+          { email: email },
+          undefined,
+          tx
+        );
+        if (user) {
+          throw new APIError(
+            HttpStatusCode.CONFLICT,
+            `Author with email ${email} already exists in the database`
+          );
+        }
+
         createdUser = await userCollection.insertOne({ name, email }, tx);
+        if (createdUser === undefined) {
+          throw new APIError(
+            HttpStatusCode.INTERNAL_SERVER,
+            `Failed to create user`
+          );
+        }
 
         const postData = posts?.map((post: Post) => {
           return {
@@ -59,10 +78,8 @@ export default (app: Router, db: DB) => {
           createdPosts = await postCollection.insertMany(postData, tx);
         }
       })
-        .then(() => {
-          res.json({ user: createdUser, posts: createdPosts });
-        })
-        .catch((error) => res.status(500).json({ error: error }));
+        .then(() => res.json({ user: createdUser, posts: createdPosts }))
+        .catch((error) => next(error));
     }
   );
 };
