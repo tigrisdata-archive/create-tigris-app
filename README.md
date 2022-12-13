@@ -15,11 +15,11 @@ npx @tigrisdata/create-tigris-app@latest
 You will be asked for the name of your project, and the clientID and
 clientSecret to connect with Tigris.
 
-```bash
-✔ What is your project named? … my-app
+```shell
+✔ What is your project named? … /Users/ovaistariq/projects/myapp
 ✔ What is the clientId? … my_id
 ✔ What is the clientSecret? … *********
-Creating a new app in ~/projects/my-app.
+Creating a new app in /Users/ovaistariq/projects/myapp.
 
 Using npm.
 
@@ -40,7 +40,7 @@ found 0 vulnerabilities
 
 Initializing project with template: default
 
-Success! Created my-app at ~/projects/my-app
+Success! Created myapp at /Users/ovaistariq/projects/myapp
 ```
 
 ### Non-interactive

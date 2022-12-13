@@ -12,7 +12,7 @@ const defaultUri = "api.preview.tigrisdata.cloud";
 const appRoot = require("app-root-path");
 const templatesRoot = appRoot + "/templates";
 
-const TEMPLATES = ["default"];
+const TEMPLATES = ["default", "rest-express"];
 export type TemplateType = typeof TEMPLATES[number];
 
 export interface InstallEnvArgs {

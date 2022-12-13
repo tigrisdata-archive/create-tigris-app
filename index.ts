@@ -11,7 +11,7 @@ import { validTemplate } from "./helpers/template";
 import { validateNpmName } from "./helpers/validate-pkg";
 import { createApp } from "./helpers/create-app";
 
-const defaultProjectName = "my-app";
+const defaultProjectName = "myapp";
 let projectPath: string = "";
 let templateName: string;
 let clientId: string;
