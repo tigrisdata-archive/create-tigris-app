@@ -9,7 +9,7 @@ Tigris as the backend. You can create a new app using one of the templates.
 You can create a new project interactively by running:
 
 ```bash
-npx @tigrisdata/create-tigris-app@latest
+npx @tigrisdata/create-tigris-app@dev
 ```
 
 You will be asked for the name of your project, and the clientID and
