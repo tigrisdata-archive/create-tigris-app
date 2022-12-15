@@ -16,29 +16,30 @@ You will be asked for the name of your project, and the clientID and
 clientSecret to connect with Tigris.
 
 ```shell
-✔ What is your project named? … /Users/ovaistariq/projects/myapp
-✔ What is the clientId? … my_id
+✔ What is your project named? … myapp
+✔ What is the clientId? … my_client_id
 ✔ What is the clientSecret? … *********
+✔ Pick the template › nextjs-api-routes
 Creating a new app in /Users/ovaistariq/projects/myapp.
 
 Using npm.
 
 Installing dependencies:
-- @tigrisdata/core
-- dotenv
-- typescript
-- ts-node
-- eslint
+- @next/font: ^13.0.6
+- @tigrisdata/core: 1.0.0-dev.1
+- next: ^13.0.6
+- react: ^18.2.0
+- react-dom: ^18.2.0
 
 
-added 282 packages, and audited 283 packages in 6s
+added 302 packages, and audited 303 packages in 13s
 
-85 packages are looking for funding
+88 packages are looking for funding
   run `npm fund` for details
 
 found 0 vulnerabilities
 
-Initializing project with template: default
+Initializing project with template: nextjs-api-routes
 
 Success! Created myapp at /Users/ovaistariq/projects/myapp
 ```
@@ -59,7 +60,7 @@ Options:
   --use-pnpm
     Explicitly tell the CLI to bootstrap the app using pnpm
 
-  -e, --example [template]
+  -e, --example [default, nextjs-api-routes, rest-express]
     An example to bootstrap the app with. You can use one of the
     templates from the create-tigris-app repo
 
