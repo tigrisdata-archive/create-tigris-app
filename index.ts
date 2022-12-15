@@ -7,7 +7,7 @@ import prompts from "prompts";
 import checkForUpdate from "update-check";
 import packageJson from "./package.json";
 import { getPkgManager, PackageManager } from "./helpers/get-pkg-manager";
-import { validTemplate } from "./helpers/template";
+import { TEMPLATES, validTemplate } from "./helpers/template";
 import { validateNpmName } from "./helpers/validate-pkg";
 import { createApp } from "./helpers/create-app";
 
@@ -33,7 +33,7 @@ const program = new Commander.Command(packageJson.name)
 `
   )
   .option(
-    "-e, --example [template]",
+    `-e, --example [${TEMPLATES.join(", ")}]`,
     `
   An example to bootstrap the app with. You can use one of the
   templates from the create-tigris-app repo
@@ -126,35 +126,34 @@ async function run(): Promise<void> {
   }
 
   // set up the clientId and clientSecret
-  if (!clientId || !clientSecret) {
-    const res = await prompts([
-      {
-        type: "text",
-        name: "id",
-        message: "What is the clientId?",
-        validate: (name) => {
-          if (typeof name === "string" && name.trim().length > 0) {
-            return true;
-          }
-          return "The clientId cannot be empty";
-        },
+  if (!clientId) {
+    const res = await prompts({
+      type: "text",
+      name: "id",
+      message: "What is the clientId?",
+      validate: (name: any) => {
+        if (typeof name === "string" && name.trim().length > 0) {
+          return true;
+        }
+        return "The clientId cannot be empty";
       },
-      {
-        type: "password",
-        name: "secret",
-        message: "What is the clientSecret?",
-        validate: (name) => {
-          if (typeof name === "string" && name.trim().length > 0) {
-            return true;
-          }
-          return "The clientSecret cannot be empty";
-        },
-      },
-    ]);
-
+    });
     if (typeof res.id === "string") {
       clientId = res.id.trim();
     }
+  }
+  if (!clientSecret) {
+    const res = await prompts({
+      type: "password",
+      name: "secret",
+      message: "What is the clientSecret?",
+      validate: (name: any) => {
+        if (typeof name === "string" && name.trim().length > 0) {
+          return true;
+        }
+        return "The clientSecret cannot be empty";
+      },
+    });
     if (typeof res.secret === "string") {
       clientSecret = res.secret.trim();
     }
@@ -172,12 +171,31 @@ async function run(): Promise<void> {
     process.exit(1);
   }
 
-  // validate the supplied template
+  // set up the template
+  if (!templateName) {
+    const res = await prompts({
+      type: "autocomplete",
+      name: "template",
+      message: "Pick the template",
+      choices: TEMPLATES.map((template: string) => {
+        return {
+          title: template,
+          value: template,
+        };
+      }),
+    });
+    if (typeof res.template === "string") {
+      templateName = res.template.trim();
+    }
+  }
+
   if (templateName) {
     templateName = templateName.trim();
     if (!validTemplate(templateName)) {
       console.error(
         "\nPlease specify one of the supported templates\n" +
+          "For example:\n" +
+          `  --example [${TEMPLATES.join(", ")}]\n\n` +
           `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
       );
       process.exit(1);
