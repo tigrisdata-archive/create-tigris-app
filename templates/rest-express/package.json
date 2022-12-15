@@ -14,7 +14,7 @@
     "dev": "npx nodemon"
   },
   "dependencies": {
-    "@tigrisdata/core": "1.0.0-beta.21",
+    "@tigrisdata/core": "1.0.0-dev.1",
     "express": "4.18.2",
     "zod": "^3.19.1"
   },

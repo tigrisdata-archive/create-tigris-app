@@ -1,4 +1,5 @@
 import { PackageManager } from "./get-pkg-manager";
+import { listTemplates } from "./list-templates";
 import { writePackageJson } from "./package-json";
 
 import chalk from "chalk";
@@ -12,7 +13,7 @@ const defaultUri = "api.preview.tigrisdata.cloud";
 const appRoot = require("app-root-path");
 const templatesRoot = appRoot + "/templates";
 
-const TEMPLATES = ["default", "rest-express"];
+export const TEMPLATES = listTemplates(templatesRoot);
 export type TemplateType = typeof TEMPLATES[number];
 
 export interface InstallEnvArgs {
