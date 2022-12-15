@@ -22,6 +22,11 @@ The above command will also take care of installing the dependencies.
 ✔ What is the clientSecret? … ****************
 Creating a new app in /Users/ovaistariq/projects/mytodo.
 
+Downloading files for example nextjs-api-routes. This might take a moment.
+
+
+Initializing project with template: nextjs-api-routes
+
 Using npm.
 
 Installing dependencies:
@@ -38,10 +43,26 @@ added 302 packages, and audited 303 packages in 10s
   run `npm fund` for details
 
 found 0 vulnerabilities
+Initialized a git repository.
 
-Initializing project with template: nextjs-api-routes
 
 Success! Created mytodo at /Users/ovaistariq/projects/mytodo
+
+Inside that directory, you can run several commands:
+
+  npm run dev
+    Starts the development server.
+
+  npm run build
+    Builds the app for production.
+
+  npm start
+    Runs the built app in production mode.
+
+We suggest that you begin by typing:
+
+  cd /Users/ovaistariq/projects/mytodo
+  npm run dev
 ```
 
 ### 2. Start the app

@@ -22,6 +22,10 @@ The above command will also take care of installing the dependencies.
 ✔ What is the clientSecret? … *********
 Creating a new app in /Users/ovaistariq/projects/myapp.
 
+Downloading files for example rest-express. This might take a moment.
+
+Initializing project with template: rest-express
+
 Using npm.
 
 Installing dependencies:
@@ -35,12 +39,25 @@ added 245 packages, and audited 246 packages in 5s
   run `npm fund` for details
 
 found 0 vulnerabilities
-
-Initializing project with template: rest-express
-
 Initialized a git repository.
 
 Success! Created myapp at /Users/ovaistariq/projects/myapp
+
+Inside that directory, you can run several commands:
+
+  npm run dev
+    Starts the development server.
+
+  npm run build
+    Builds the app for production.
+
+  npm start
+    Runs the built app in production mode.
+
+We suggest that you begin by typing:
+
+  cd /Users/ovaistariq/projects/myapp
+  npm run dev
 ```
 
 ### 2. Start the REST API server

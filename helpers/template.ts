@@ -1,19 +1,16 @@
 import { PackageManager } from "./get-pkg-manager";
-import { listTemplates } from "./list-templates";
-import { writePackageJson } from "./package-json";
+import { setupDependencies } from "./package-json";
+import { downloadAndExtractExample } from "./examples";
 
+import retry from "async-retry";
 import chalk from "chalk";
-import cpy from "cpy";
 import os from "os";
 import fs from "fs";
 import path from "path";
 
 const defaultUri = "api.preview.tigrisdata.cloud";
 
-const appRoot = require("app-root-path");
-const templatesRoot = appRoot + "/templates";
-
-export const TEMPLATES = listTemplates(templatesRoot);
+export const TEMPLATES = ["default", "nextjs-api-routes", "rest-express"];
 export type TemplateType = typeof TEMPLATES[number];
 
 export interface InstallEnvArgs {
@@ -70,19 +67,20 @@ export const installTemplate = async ({
   clientId,
   clientSecret,
 }: InstallTemplateArgs) => {
-  console.log(chalk.bold(`Using ${packageManager}.`));
-
-  /**
-   * Set up the template path.
-   */
-  const templatePath = path.join(templatesRoot, template);
+  console.log(
+    `Downloading files for example ${chalk.cyan(
+      template
+    )}. This might take a moment.`
+  );
+  console.log();
+  await retry(() => downloadAndExtractExample(root, template), { retries: 3 });
 
   /**
    * Set up the package.json and install dependencies.
    */
-  await writePackageJson({
+  console.log("\nInitializing project with template:", template, "\n");
+  await setupDependencies({
     appName,
-    templatePath,
     root,
     packageManager,
     isOnline,
@@ -91,25 +89,21 @@ export const installTemplate = async ({
   /**
    * Copy the template files to the target directory.
    */
-  console.log("\nInitializing project with template:", template, "\n");
-  await cpy("**", root, {
-    parents: true,
-    cwd: templatePath,
-    rename: (name) => {
-      switch (name) {
-        case "gitignore":
-        case "eslintrc.json": {
-          return ".".concat(name);
-        }
-        case "README-template.md": {
-          return "README.md";
-        }
-        default: {
-          return name;
-        }
-      }
-    },
-  });
+  const ignorePath = path.join(root, ".gitignore");
+  if (fs.existsSync(path.join(root, "gitignore"))) {
+    fs.renameSync(path.join(root, "gitignore"), ignorePath);
+  }
+
+  const eslintPath = path.join(root, ".eslintrc.json");
+  if (fs.existsSync(path.join(root, "eslintrc.json"))) {
+    fs.renameSync(path.join(root, "eslintrc.json"), eslintPath);
+  }
+
+  const readmePath = path.join(root, "README.md");
+  if (fs.existsSync(path.join(root, "README-template.md"))) {
+    fs.renameSync(path.join(root, "README-template.md"), readmePath);
+  }
+
   /**
    * Setup the environment file
    */
