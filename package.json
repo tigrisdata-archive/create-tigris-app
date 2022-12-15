@@ -1,6 +1,6 @@
 {
   "name": "@tigrisdata/create-tigris-app",
-  "version": "1.0.0-beta.9",
+  "version": "1.0.0-dev.1",
   "keywords": [
     "database",
     "tigris",
