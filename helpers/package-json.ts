@@ -7,21 +7,20 @@ import chalk from "chalk";
 
 interface WritePackageJsonArgs {
   appName: string;
-  templatePath: string;
   root: string;
   packageManager: PackageManager;
   isOnline: boolean;
 }
 
-export const writePackageJson = async ({
+export const setupDependencies = async ({
   appName,
-  templatePath,
   root,
   packageManager,
   isOnline,
 }: WritePackageJsonArgs): Promise<boolean> => {
   try {
-    const jsonString = fs.readFileSync(path.join(templatePath, "package.json"));
+    const packageJsonPath = path.join(root, "package.json");
+    const jsonString = fs.readFileSync(packageJsonPath);
     const packageJson = JSON.parse(jsonString.toString());
 
     packageJson["name"] = appName;
@@ -30,7 +29,7 @@ export const writePackageJson = async ({
      * Write it to disk.
      */
     fs.writeFileSync(
-      path.join(root, "package.json"),
+      packageJsonPath,
       JSON.stringify(packageJson, null, 2) + os.EOL
     );
 
@@ -43,6 +42,8 @@ export const writePackageJson = async ({
     /**
      * Install package.json dependencies if they exist.
      */
+    console.log(chalk.bold(`Using ${packageManager}.`));
+
     if (packageJson["dependencies"] || packageJson["devDependencies"]) {
       console.log();
       console.log("Installing dependencies:");

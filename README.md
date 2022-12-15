@@ -9,7 +9,7 @@ Tigris as the backend. You can create a new app using one of the templates.
 You can create a new project interactively by running:
 
 ```bash
-npx @tigrisdata/create-tigris-app@latest
+npx @tigrisdata/create-tigris-app@dev
 ```
 
 You will be asked for the name of your project, and the clientID and
@@ -21,6 +21,10 @@ clientSecret to connect with Tigris.
 ✔ What is the clientSecret? … *********
 ✔ Pick the template › nextjs-api-routes
 Creating a new app in /Users/ovaistariq/projects/myapp.
+
+Downloading files for example nextjs-api-routes. This might take a moment.
+
+Initializing project with template: nextjs-api-routes
 
 Using npm.
 
@@ -38,10 +42,25 @@ added 302 packages, and audited 303 packages in 13s
   run `npm fund` for details
 
 found 0 vulnerabilities
-
-Initializing project with template: nextjs-api-routes
+Initialized a git repository.
 
 Success! Created myapp at /Users/ovaistariq/projects/myapp
+
+Inside that directory, you can run several commands:
+
+  npm run dev
+    Starts the development server.
+
+  npm run build
+    Builds the app for production.
+
+  npm start
+    Runs the built app in production mode.
+
+We suggest that you begin by typing:
+
+  cd /Users/ovaistariq/projects/myapp
+  npm run dev
 ```
 
 ### Non-interactive
