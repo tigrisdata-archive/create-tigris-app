@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import chalk from "chalk";
 import spawn from "cross-spawn";
 import type { PackageManager } from "./get-pkg-manager";

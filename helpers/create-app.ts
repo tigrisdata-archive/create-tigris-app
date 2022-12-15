@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import chalk from "chalk";
 import path from "path";
 import { makeDir } from "./make-dir";
