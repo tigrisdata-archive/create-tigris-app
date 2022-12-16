@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { ITEMS_COLLECTION_NAME, TodoItem } from "../../../models/todoItems";
+import { TodoItem } from "../../../models/todoItems";
 import tigrisDB from "../../../lib/tigris";
 
 type Data = {
@@ -37,9 +37,7 @@ async function handleGet(
   itemId: number
 ) {
   try {
-    const itemsCollection = tigrisDB.getCollection<TodoItem>(
-      ITEMS_COLLECTION_NAME
-    );
+    const itemsCollection = tigrisDB.getCollection<TodoItem>(TodoItem);
     const item = await itemsCollection.findOne({ id: itemId });
     if (!item) {
       res.status(404).json({ error: "No item found" });
@@ -55,9 +53,7 @@ async function handleGet(
 async function handlePut(req: NextApiRequest, res: NextApiResponse<Data>) {
   try {
     const item = JSON.parse(req.body) as TodoItem;
-    const itemsCollection = tigrisDB.getCollection<TodoItem>(
-      ITEMS_COLLECTION_NAME
-    );
+    const itemsCollection = tigrisDB.getCollection<TodoItem>(TodoItem);
     const updated = await itemsCollection.insertOrReplaceOne(item);
     res.status(200).json({ result: updated });
   } catch (err) {
@@ -72,9 +68,7 @@ async function handleDelete(
   itemId: number
 ) {
   try {
-    const itemsCollection = tigrisDB.getCollection<TodoItem>(
-      ITEMS_COLLECTION_NAME
-    );
+    const itemsCollection = tigrisDB.getCollection<TodoItem>(TodoItem);
     const status = (await itemsCollection.deleteOne({ id: itemId })).status;
     if (status === "deleted") {
       res.status(200).json({});
