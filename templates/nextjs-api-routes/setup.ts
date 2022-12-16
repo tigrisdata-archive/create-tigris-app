@@ -1,12 +1,14 @@
 import "reflect-metadata";
 import { Tigris } from "@tigrisdata/core";
+import { TodoItem } from "./models/todoItems";
 
 async function main() {
   // setup client
   const tigrisClient = new Tigris();
 
   // create collections
-  await tigrisClient.registerSchemas();
+  const db = tigrisClient.getDatabase();
+  await db.createOrUpdateCollection<TodoItem>(TodoItem);
 }
 
 main()
