@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { ITEMS_COLLECTION_NAME, TodoItem } from "../../../models/todoItems";
+import { TodoItem } from "../../../db/models/todoItems";
 import { SearchRequest } from "@tigrisdata/core/dist/search/types";
 import tigrisDB from "../../../lib/tigris";
 
@@ -19,9 +19,7 @@ export default async function handler(
     return;
   }
   try {
-    const itemsCollection = tigrisDB.getCollection<TodoItem>(
-      ITEMS_COLLECTION_NAME
-    );
+    const itemsCollection = tigrisDB.getCollection<TodoItem>(TodoItem);
     const searchRequest: SearchRequest<TodoItem> = { q: query as string };
     const searchResult = await itemsCollection.search(searchRequest);
     const items = new Array<TodoItem>();
