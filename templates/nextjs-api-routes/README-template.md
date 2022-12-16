@@ -118,7 +118,7 @@ files exposing endpoints:
 
 ### 🪢 Data model definition
 
-[models/todoItems.ts](models/todoItems.ts) - The to-do list app
+[models/todoItems.ts](db/models/todoItems.ts) - The to-do list app
 has a single collection `todoItems` that stores the to-do items in the
 database. The collection gets automatically created by the
 [setup script](setup.ts).

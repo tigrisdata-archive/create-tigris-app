@@ -1,5 +1,5 @@
 import { Tigris } from "@tigrisdata/core";
-import { TodoItem } from "./models/todoItems";
+import { TodoItem } from "./db/models/todoItems";
 
 async function main() {
   // setup client

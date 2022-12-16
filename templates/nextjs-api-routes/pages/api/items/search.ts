@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { TodoItem } from "../../../models/todoItems";
+import { TodoItem } from "../../../db/models/todoItems";
 import { SearchRequest } from "@tigrisdata/core/dist/search/types";
 import tigrisDB from "../../../lib/tigris";
 

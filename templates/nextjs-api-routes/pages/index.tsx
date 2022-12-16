@@ -4,7 +4,7 @@ import Head from "next/head";
 import { useState } from "react";
 import EachTodo from "../components/EachToDo";
 import LoaderWave from "../components/LoaderWave";
-import { TodoItem } from "../models/todoItems";
+import { TodoItem } from "../db/models/todoItems";
 import tigrisDB from "../lib/tigris";
 import styles from "../styles/Home.module.css";
 
