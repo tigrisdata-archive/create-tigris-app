@@ -1,10 +1,14 @@
 import * as path from "path";
 import { Tigris } from "@tigrisdata/core";
+import { TodoItem } from "./models/todoItems";
 
 async function main() {
   // setup client
   const tigrisClient = new Tigris();
-  await tigrisClient.registerSchemas(path.join(__dirname, "models"));
+
+  // create collections
+  const db = tigrisClient.getDatabase();
+  await db.createOrUpdateCollection<TodoItem>(TodoItem);
 }
 
 main()

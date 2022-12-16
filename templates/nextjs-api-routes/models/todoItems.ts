@@ -1,22 +1,20 @@
 import {
-  TigrisCollectionType,
+  Field,
+  PrimaryKey,
+  TigrisCollection,
   TigrisDataTypes,
-  TigrisSchema,
-} from "@tigrisdata/core/dist/types";
+} from "@tigrisdata/core";
 
 export const ITEMS_COLLECTION_NAME = "todoItems";
 
-export interface TodoItem extends TigrisCollectionType {
-  id: number;
-  text: string;
-  completed: boolean;
-}
+@TigrisCollection(ITEMS_COLLECTION_NAME)
+export class TodoItem {
+  @PrimaryKey(TigrisDataTypes.INT32, { order: 1, autoGenerate: true })
+  id!: number;
 
-export const TodoItemSchema: TigrisSchema<TodoItem> = {
-  id: {
-    type: TigrisDataTypes.INT32,
-    primary_key: { order: 1, autoGenerate: true },
-  },
-  text: { type: TigrisDataTypes.STRING },
-  completed: { type: TigrisDataTypes.BOOLEAN },
-};
+  @Field()
+  text!: string;
+
+  @Field()
+  completed!: boolean;
+}
