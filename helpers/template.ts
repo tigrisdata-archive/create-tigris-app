@@ -8,17 +8,16 @@ import os from "os";
 import fs from "fs";
 import path from "path";
 
-const defaultUri = "api.preview.tigrisdata.cloud";
-
+export const ENVIRONMENTS = ["dev", "preview"];
 export const TEMPLATES = ["default", "nextjs-api-routes", "rest-express"];
 export type TemplateType = typeof TEMPLATES[number];
 
 export interface InstallEnvArgs {
   root: string;
-  uri: string;
   project: string;
   clientId: string;
   clientSecret: string;
+  environment: string;
 }
 
 export interface InstallTemplateArgs {
@@ -29,6 +28,7 @@ export interface InstallTemplateArgs {
   template: TemplateType;
   clientId: string;
   clientSecret: string;
+  environment: string;
 }
 
 /**
@@ -43,12 +43,18 @@ export const validTemplate = (template: string): boolean => {
  */
 export const installEnv = ({
   root,
-  uri,
   project,
   clientId,
   clientSecret,
+  environment,
 }: InstallEnvArgs) => {
-  const envContent = `TIGRIS_URI=${uri}
+  const parsedEnv = environment
+    ? ENVIRONMENTS.includes(environment)
+      ? environment
+      : "preview"
+    : "preview";
+
+  const envContent = `TIGRIS_URI=api.${parsedEnv}.tigrisdata.cloud
 TIGRIS_PROJECT=${project}
 TIGRIS_CLIENT_ID=${clientId}
 TIGRIS_CLIENT_SECRET=${clientSecret}`;
@@ -66,6 +72,7 @@ export const installTemplate = async ({
   template,
   clientId,
   clientSecret,
+  environment,
 }: InstallTemplateArgs) => {
   console.log(
     `Downloading files for example ${chalk.cyan(
@@ -109,7 +116,7 @@ export const installTemplate = async ({
    */
   installEnv({
     root,
-    uri: defaultUri,
+    environment: environment,
     project: appName,
     clientId: clientId,
     clientSecret: clientSecret,

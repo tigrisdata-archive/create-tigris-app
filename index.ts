@@ -6,7 +6,7 @@ import prompts from "prompts";
 import checkForUpdate from "update-check";
 import packageJson from "./package.json";
 import { getPkgManager, PackageManager } from "./helpers/get-pkg-manager";
-import { TEMPLATES, validTemplate } from "./helpers/template";
+import { ENVIRONMENTS, TEMPLATES, validTemplate } from "./helpers/template";
 import { validateNpmName } from "./helpers/validate-pkg";
 import { createApp } from "./helpers/create-app";
 
@@ -16,6 +16,7 @@ let templateName: string;
 let clientId: string;
 let clientSecret: string;
 let packageManager: PackageManager;
+let environment: string;
 
 const program = new Commander.Command(packageJson.name)
   .version(packageJson.version)
@@ -57,12 +58,19 @@ const program = new Commander.Command(packageJson.name)
   The clientSecret project will use to connect to Tigris
 `
   )
+  .option(
+    `-E, --env [${ENVIRONMENTS.join(", ")}]`,
+    `
+  The environment where the project will be created
+`
+  )
   .allowUnknownOption()
   .action((options) => {
     projectPath = options.project;
     templateName = options.example;
     clientId = options.clientId;
     clientSecret = options.clientSecret;
+    environment = options.env;
     packageManager = !!options.useNpm
       ? "npm"
       : !!options.usePnpm
@@ -208,6 +216,7 @@ async function run(): Promise<void> {
       templateName && templateName !== "default" ? templateName : undefined,
     clientId,
     clientSecret,
+    environment,
   });
 }
 
