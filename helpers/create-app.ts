@@ -15,12 +15,14 @@ export async function createApp({
   example,
   clientId,
   clientSecret,
+  environment,
 }: {
   appPath: string;
   packageManager: PackageManager;
   example?: string;
   clientId: string;
   clientSecret: string;
+  environment: string;
 }): Promise<void> {
   const template: TemplateType = example ? example : "default";
 
@@ -79,6 +81,7 @@ export async function createApp({
     isOnline,
     clientId,
     clientSecret,
+    environment,
   });
 
   if (tryGitInit(root)) {
