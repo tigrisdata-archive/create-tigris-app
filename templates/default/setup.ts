@@ -1,10 +1,11 @@
 import * as path from "path";
 import { Tigris } from "@tigrisdata/core";
+import { User } from "./src/db/models/user";
 
 async function main() {
   // setup client
   const tigrisClient = new Tigris();
-  await tigrisClient.registerSchemas(path.join(__dirname, "src/models"));
+  await tigrisClient.registerSchemas([User]);
 }
 
 main()
