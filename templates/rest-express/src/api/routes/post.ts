@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { z } from "zod";
 import { DB } from "@tigrisdata/core";
-import { User, USER_COLLECTION_NAME } from "../../models/user";
-import { Post, POST_COLLECTION_NAME } from "../../models/post";
+import { User } from "../../db/models/user";
+import { Post } from "../../db/models/post";
 import middlewares from "../middlewares";
 import { APIError, HttpStatusCode } from "../../utils/errors";
 
@@ -23,8 +23,8 @@ const apiSchema = z.object({
 });
 
 export default (app: Router, db: DB) => {
-  const userCollection = db.getCollection<User>(USER_COLLECTION_NAME);
-  const postCollection = db.getCollection<Post>(POST_COLLECTION_NAME);
+  const userCollection = db.getCollection<User>(User);
+  const postCollection = db.getCollection<Post>(Post);
 
   app.post(
     `/post`,
@@ -73,7 +73,7 @@ export default (app: Router, db: DB) => {
     const { id } = req.params;
 
     try {
-      const query = { id: id };
+      const query = { id: BigInt(id) };
       const post = await postCollection.findOne(query);
 
       if (post === undefined) {
@@ -93,7 +93,7 @@ export default (app: Router, db: DB) => {
     const { id } = req.params;
 
     try {
-      const result = await postCollection.deleteOne({ id: id });
+      const result = await postCollection.deleteOne({ id: BigInt(id) });
 
       if (!result?.status) {
         throw new APIError(
@@ -113,7 +113,7 @@ export default (app: Router, db: DB) => {
 
     let post: Post;
     db.transact(async (tx) => {
-      const query = { id: id };
+      const query = { id: BigInt(id) };
       post = await postCollection.findOne(query, undefined, tx);
 
       if (post === undefined) {
@@ -146,7 +146,7 @@ export default (app: Router, db: DB) => {
 
     let post: Post;
     db.transact(async (tx) => {
-      const query = { id: id };
+      const query = { id: BigInt(id) };
       post = await postCollection.findOne(query, undefined, tx);
 
       if (post === undefined) {
