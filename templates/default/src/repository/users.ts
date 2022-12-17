@@ -1,4 +1,4 @@
-import { User, USER_COLLECTION_NAME } from "../models/user";
+import { User } from "../db/models/user";
 import { Collection, DB } from "@tigrisdata/core";
 import { SearchRequest } from "@tigrisdata/core/dist/search/types";
 
@@ -6,7 +6,7 @@ export class UsersRepository {
   private readonly users: Collection<User>;
 
   constructor(db: DB) {
-    this.users = db.getCollection<User>(USER_COLLECTION_NAME);
+    this.users = db.getCollection<User>(User);
   }
 
   // Create a user record
@@ -18,7 +18,7 @@ export class UsersRepository {
   // Read a user by ID
   public findOne = async (id: string) => {
     const user = await this.users.findOne({
-      userId: id,
+      userId: BigInt(id),
     });
 
     if (user !== undefined) {
@@ -32,7 +32,7 @@ export class UsersRepository {
   public update = async (id: string, user: User) => {
     await this.users.updateOne(
       {
-        userId: id,
+        userId: BigInt(id),
       },
       {
         name: user.name,
@@ -44,7 +44,7 @@ export class UsersRepository {
   // Delete a user record
   public delete = async (id: string) => {
     await this.users.deleteOne({
-      userId: id,
+      userId: BigInt(id),
     });
   };
 
