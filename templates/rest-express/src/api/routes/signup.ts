@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { z } from "zod";
 import { DB } from "@tigrisdata/core";
-import { User, USER_COLLECTION_NAME } from "../../models/user";
-import { Post, POST_COLLECTION_NAME } from "../../models/post";
+import { User } from "../../db/models/user";
+import { Post } from "../../db/models/post";
 import middlewares from "../middlewares";
 import { APIError, HttpStatusCode } from "../../utils/errors";
 
@@ -32,8 +32,8 @@ const apiSchema = z.object({
 });
 
 export default (app: Router, db: DB) => {
-  const userCollection = db.getCollection<User>(USER_COLLECTION_NAME);
-  const postCollection = db.getCollection<Post>(POST_COLLECTION_NAME);
+  const userCollection = db.getCollection<User>(User);
+  const postCollection = db.getCollection<Post>(Post);
 
   app.post(
     `/signup`,

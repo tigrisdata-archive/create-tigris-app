@@ -6,7 +6,7 @@ import {
   SearchRequestOptions,
   SortOrder,
 } from "@tigrisdata/core/dist/search/types";
-import { Post, POST_COLLECTION_NAME } from "../../models/post";
+import { Post } from "../../db/models/post";
 import middlewares from "../middlewares";
 
 const apiSchema = z.object({
@@ -21,7 +21,7 @@ const apiSchema = z.object({
 });
 
 export default (app: Router, db: DB) => {
-  const postCollection = db.getCollection<Post>(POST_COLLECTION_NAME);
+  const postCollection = db.getCollection<Post>(Post);
 
   app.get(
     "/search",

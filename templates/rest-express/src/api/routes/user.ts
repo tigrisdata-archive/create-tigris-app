@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { DB } from "@tigrisdata/core";
-import { User, USER_COLLECTION_NAME } from "../../models/user";
-import { Post, POST_COLLECTION_NAME } from "../../models/post";
+import { User } from "../../db/models/user";
+import { Post } from "../../db/models/post";
 
 export default (app: Router, db: DB) => {
-  const userCollection = db.getCollection<User>(USER_COLLECTION_NAME);
-  const postCollection = db.getCollection<Post>(POST_COLLECTION_NAME);
+  const userCollection = db.getCollection<User>(User);
+  const postCollection = db.getCollection<Post>(Post);
 
   app.get("/users", async (req, res, next) => {
     try {
@@ -21,7 +21,7 @@ export default (app: Router, db: DB) => {
     const { id } = req.params;
 
     try {
-      const query = { authorId: id, published: false };
+      const query = { authorId: BigInt(id), published: false };
       const cursor = postCollection.findMany(query);
       const drafts = await cursor.toArray();
 
