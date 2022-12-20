@@ -24,25 +24,28 @@ Creating a new app in /Users/ovaistariq/projects/myapp.
 
 Downloading files for example nextjs-api-routes. This might take a moment.
 
+
 Initializing project with template: nextjs-api-routes
 
 Using npm.
 
 Installing dependencies:
 - @next/font: ^13.0.6
-- @tigrisdata/core: 1.0.0-dev.1
+- @tigrisdata/core: latest
 - next: ^13.0.6
 - react: ^18.2.0
 - react-dom: ^18.2.0
+- reflect-metadata: ^0.1.13
 
 
-added 302 packages, and audited 303 packages in 13s
+added 314 packages, and audited 315 packages in 6s
 
-88 packages are looking for funding
+91 packages are looking for funding
   run `npm fund` for details
 
 found 0 vulnerabilities
 Initialized a git repository.
+
 
 Success! Created myapp at /Users/ovaistariq/projects/myapp
 
@@ -59,7 +62,7 @@ Inside that directory, you can run several commands:
 
 We suggest that you begin by typing:
 
-  cd /Users/ovaistariq/projects/myapp
+  cd myapp
   npm run dev
 ```
 
