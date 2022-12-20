@@ -11,7 +11,7 @@ This example shows how to implement a fullstack app in TypeScript with
 Download this example:
 
 ```
-npx @tigrisdata/create-tigris-app@latest --example nextjs-api-routes
+npx create-tigris-app@latest --example nextjs-api-routes
 ```
 
 The above command will also take care of installing the dependencies.

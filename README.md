@@ -9,7 +9,7 @@ Tigris as the backend. You can create a new app using one of the templates.
 You can create a new project interactively by running:
 
 ```bash
-npx @tigrisdata/create-tigris-app@dev
+npx create-tigris-app@latest
 ```
 
 You will be asked for the name of your project, and the clientID and
@@ -96,6 +96,6 @@ Options:
   -h, --help                    display help for command
 ```
 
-[![npm](https://img.shields.io/npm/v/@tigrisdata/create-tigris-app)](https://www.npmjs.com/package/@tigrisdata/create-tigris-app)
+[![npm](https://img.shields.io/npm/v/create-tigris-app)](https://www.npmjs.com/package/create-tigris-app)
 [![slack](https://img.shields.io/badge/slack-tigrisdata-34D058.svg?logo=slack)](https://tigrisdata.slack.com)
 [![GitHub](https://img.shields.io/github/license/tigrisdata/create-tigris-app)](https://github.com/tigrisdata/create-tigris-app/blob/main/LICENSE)

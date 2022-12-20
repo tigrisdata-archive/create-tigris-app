@@ -11,7 +11,7 @@ This example shows how to implement a **REST API with TypeScript** using
 Download this example:
 
 ```
-npx @tigrisdata/create-tigris-app@latest --example rest-express
+npx create-tigris-app@latest --example rest-express
 ```
 
 The above command will also take care of installing the dependencies.
