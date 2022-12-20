@@ -69,7 +69,7 @@ You can also pass command line arguments to set up a new project
 non-interactively. See `create-tigris-app --help`:
 
 ```bash
-Usage: @tigrisdata/create-tigris-app [options]
+Usage: create-tigris-app [options]
 
 Options:
   -V, --version                 output the version number
