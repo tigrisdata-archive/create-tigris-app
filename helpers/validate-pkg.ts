@@ -4,7 +4,7 @@ export function validateNpmName(name: string): {
   valid: boolean;
   problems?: string[];
 } {
-  const nameValidation = validateProjectName(name);
+  const nameValidation = validateProjectName(name.toLowerCase());
   if (nameValidation.validForNewPackages) {
     return { valid: true };
   }
