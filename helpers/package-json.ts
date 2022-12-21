@@ -23,7 +23,7 @@ export const setupDependencies = async ({
     const jsonString = fs.readFileSync(packageJsonPath);
     const packageJson = JSON.parse(jsonString.toString());
 
-    packageJson["name"] = appName;
+    packageJson["name"] = appName.toLowerCase();
 
     /**
      * Write it to disk.
