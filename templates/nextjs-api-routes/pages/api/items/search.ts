@@ -1,7 +1,7 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { TodoItem } from '../../../db/models/todoItems'
-import { SearchQuery } from '@tigrisdata/core'
-import tigrisDB from '../../../lib/tigris'
+import { NextApiRequest, NextApiResponse } from "next";
+import { TodoItem } from "../../../db/models/todoItems";
+import { SearchQuery } from "@tigrisdata/core";
+import tigrisDB from "../../../lib/tigris";
 
 type Data = {
   result?: Array<TodoItem>;
@@ -24,7 +24,7 @@ export default async function handler(
     const searchResult = itemsCollection.search(searchQuery);
     const items = new Array<TodoItem>();
     for await (const res of searchResult) {
-      res.hits.forEach(hit => items.push(hit.document));
+      res.hits.forEach((hit) => items.push(hit.document));
     }
     res.status(200).json({ result: items });
   } catch (err) {

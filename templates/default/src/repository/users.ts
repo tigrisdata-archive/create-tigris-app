@@ -1,5 +1,5 @@
 import { User } from "../db/models/user";
-import { Collection, DB, SearchQuery } from '@tigrisdata/core'
+import { Collection, DB, SearchQuery } from "@tigrisdata/core";
 
 export class UsersRepository {
   private readonly users: Collection<User>;
@@ -34,7 +34,7 @@ export class UsersRepository {
       fields: {
         name: user.name,
         balance: user.balance,
-      }
+      },
     });
   };
 

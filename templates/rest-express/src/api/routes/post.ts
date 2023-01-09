@@ -34,9 +34,12 @@ export default (app: Router, db: DB) => {
 
       let createdPost: Post;
       db.transact(async (tx) => {
-        const user = await userCollection.findOne({
-          filter: { email: authorEmail },
-        }, tx);
+        const user = await userCollection.findOne(
+          {
+            filter: { email: authorEmail },
+          },
+          tx
+        );
         if (user === undefined) {
           throw new APIError(
             HttpStatusCode.NOT_FOUND,
@@ -72,7 +75,7 @@ export default (app: Router, db: DB) => {
 
     try {
       const query = {
-        filter: { id: BigInt(id) }
+        filter: { id: BigInt(id) },
       };
       const post = await postCollection.findOne(query);
 
@@ -94,7 +97,7 @@ export default (app: Router, db: DB) => {
 
     try {
       const result = await postCollection.deleteOne({
-        filter: { id: BigInt(id) }
+        filter: { id: BigInt(id) },
       });
 
       if (!result?.status) {
@@ -116,7 +119,7 @@ export default (app: Router, db: DB) => {
     let post: Post;
     db.transact(async (tx) => {
       const query = {
-        filter: { id: BigInt(id) }
+        filter: { id: BigInt(id) },
       };
       post = await postCollection.findOne(query, tx);
 
@@ -128,10 +131,13 @@ export default (app: Router, db: DB) => {
       }
 
       post.viewCount += 1;
-      const result = await postCollection.updateOne({
-        filter: { id: post.id },
-        fields: { viewCount: post.viewCount },
-        }, tx);
+      const result = await postCollection.updateOne(
+        {
+          filter: { id: post.id },
+          fields: { viewCount: post.viewCount },
+        },
+        tx
+      );
 
       if (!result?.modifiedCount) {
         throw new APIError(
@@ -150,7 +156,7 @@ export default (app: Router, db: DB) => {
     let post: Post;
     db.transact(async (tx) => {
       const query = {
-        filter: {id: BigInt(id) }
+        filter: { id: BigInt(id) },
       };
       post = await postCollection.findOne(query, tx);
 
@@ -162,10 +168,13 @@ export default (app: Router, db: DB) => {
       }
 
       post.published = !post.published;
-      const result = await postCollection.updateOne({
-        filter: { id: post.id },
-        fields: { published: post.published },
-      }, tx);
+      const result = await postCollection.updateOne(
+        {
+          filter: { id: post.id },
+          fields: { published: post.published },
+        },
+        tx
+      );
 
       if (!result?.modifiedCount) {
         throw new APIError(
