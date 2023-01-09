@@ -1,6 +1,5 @@
 import { User } from "../db/models/user";
-import { Collection, DB } from "@tigrisdata/core";
-import { SearchRequest } from "@tigrisdata/core/dist/search/types";
+import { Collection, DB, SearchQuery } from '@tigrisdata/core'
 
 export class UsersRepository {
   private readonly users: Collection<User>;
@@ -18,7 +17,7 @@ export class UsersRepository {
   // Read a user by ID
   public findOne = async (id: string) => {
     const user = await this.users.findOne({
-      userId: BigInt(id),
+      filter: { userId: BigInt(id) },
     });
 
     if (user !== undefined) {
@@ -30,21 +29,19 @@ export class UsersRepository {
 
   // Update a user record
   public update = async (id: string, user: User) => {
-    await this.users.updateOne(
-      {
-        userId: BigInt(id),
-      },
-      {
+    await this.users.updateOne({
+      filter: { userId: BigInt(id) },
+      fields: {
         name: user.name,
         balance: user.balance,
       }
-    );
+    });
   };
 
   // Delete a user record
   public delete = async (id: string) => {
     await this.users.deleteOne({
-      userId: BigInt(id),
+      filter: { userId: BigInt(id) },
     });
   };
 
@@ -64,11 +61,11 @@ export class UsersRepository {
 
   // Search user records by name
   public search = async (name: string) => {
-    const request: SearchRequest<User> = {
+    const query: SearchQuery<User> = {
       q: name,
       searchFields: ["name"],
     };
-    const results = this.users.searchStream(request);
+    const results = this.users.search(query);
     try {
       for await (const res of results) {
         console.log(`Search results found: ${res.meta.found}`);

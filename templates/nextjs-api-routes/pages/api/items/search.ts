@@ -1,7 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { TodoItem } from "../../../db/models/todoItems";
-import { SearchRequest } from "@tigrisdata/core/dist/search/types";
-import tigrisDB from "../../../lib/tigris";
+import { NextApiRequest, NextApiResponse } from 'next'
+import { TodoItem } from '../../../db/models/todoItems'
+import { SearchQuery } from '@tigrisdata/core'
+import tigrisDB from '../../../lib/tigris'
 
 type Data = {
   result?: Array<TodoItem>;
@@ -20,11 +20,11 @@ export default async function handler(
   }
   try {
     const itemsCollection = tigrisDB.getCollection<TodoItem>(TodoItem);
-    const searchRequest: SearchRequest<TodoItem> = { q: query as string };
-    const searchResult = await itemsCollection.search(searchRequest);
+    const searchQuery: SearchQuery<TodoItem> = { q: query as string };
+    const searchResult = itemsCollection.search(searchQuery);
     const items = new Array<TodoItem>();
-    for (const hit of searchResult.hits) {
-      items.push(hit.document);
+    for await (const res of searchResult) {
+      res.hits.forEach(hit => items.push(hit.document));
     }
     res.status(200).json({ result: items });
   } catch (err) {
