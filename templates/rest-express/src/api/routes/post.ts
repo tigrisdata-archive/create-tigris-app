@@ -35,8 +35,9 @@ export default (app: Router, db: DB) => {
       let createdPost: Post;
       db.transact(async (tx) => {
         const user = await userCollection.findOne(
-          { email: authorEmail },
-          undefined,
+          {
+            filter: { email: authorEmail },
+          },
           tx
         );
         if (user === undefined) {
@@ -73,7 +74,9 @@ export default (app: Router, db: DB) => {
     const { id } = req.params;
 
     try {
-      const query = { id: BigInt(id) };
+      const query = {
+        filter: { id: BigInt(id) },
+      };
       const post = await postCollection.findOne(query);
 
       if (post === undefined) {
@@ -93,7 +96,9 @@ export default (app: Router, db: DB) => {
     const { id } = req.params;
 
     try {
-      const result = await postCollection.deleteOne({ id: BigInt(id) });
+      const result = await postCollection.deleteOne({
+        filter: { id: BigInt(id) },
+      });
 
       if (!result?.status) {
         throw new APIError(
@@ -113,8 +118,10 @@ export default (app: Router, db: DB) => {
 
     let post: Post;
     db.transact(async (tx) => {
-      const query = { id: BigInt(id) };
-      post = await postCollection.findOne(query, undefined, tx);
+      const query = {
+        filter: { id: BigInt(id) },
+      };
+      post = await postCollection.findOne(query, tx);
 
       if (post === undefined) {
         throw new APIError(
@@ -125,8 +132,10 @@ export default (app: Router, db: DB) => {
 
       post.viewCount += 1;
       const result = await postCollection.updateOne(
-        { id: post.id },
-        { viewCount: post.viewCount },
+        {
+          filter: { id: post.id },
+          fields: { viewCount: post.viewCount },
+        },
         tx
       );
 
@@ -146,8 +155,10 @@ export default (app: Router, db: DB) => {
 
     let post: Post;
     db.transact(async (tx) => {
-      const query = { id: BigInt(id) };
-      post = await postCollection.findOne(query, undefined, tx);
+      const query = {
+        filter: { id: BigInt(id) },
+      };
+      post = await postCollection.findOne(query, tx);
 
       if (post === undefined) {
         throw new APIError(
@@ -158,8 +169,10 @@ export default (app: Router, db: DB) => {
 
       post.published = !post.published;
       const result = await postCollection.updateOne(
-        { id: post.id },
-        { published: post.published },
+        {
+          filter: { id: post.id },
+          fields: { published: post.published },
+        },
         tx
       );
 
