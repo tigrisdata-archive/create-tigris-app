@@ -21,7 +21,9 @@ export default (app: Router, db: DB) => {
     const { id } = req.params;
 
     try {
-      const query = { authorId: BigInt(id), published: false };
+      const query = {
+        filter: { authorId: BigInt(id), published: false },
+      };
       const cursor = postCollection.findMany(query);
       const drafts = await cursor.toArray();
 

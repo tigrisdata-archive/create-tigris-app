@@ -13,6 +13,6 @@ export class User {
   @Field()
   name: string;
 
-  @Field()
+  @Field({ default: 0 })
   balance: number;
 }

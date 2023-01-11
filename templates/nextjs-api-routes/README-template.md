@@ -151,29 +151,26 @@ The first step is to extend the `todoItems` data model:
 // ./models/todoItems.ts
 
 import {
-  TigrisCollectionType,
+  Field,
+  PrimaryKey,
+  TigrisCollection,
   TigrisDataTypes,
-  TigrisSchema,
-} from "@tigrisdata/core/dist/types";
+} from "@tigrisdata/core";
 
-export const ITEMS_COLLECTION_NAME = "todoItems";
+@TigrisCollection("todoItems")
+export class TodoItem {
+  @PrimaryKey(TigrisDataTypes.INT32, { order: 1, autoGenerate: true })
+  id!: number;
 
-export interface TodoItem extends TigrisCollectionType {
-  id: number;
-  text: string;
-  completed: boolean;
-+  category: string;
+  @Field()
+  text!: string;
+
+  @Field({ default: false })
+  completed!: boolean;
++
++  @Field()
++  category!: string;
 }
-
-export const TodoItemSchema: TigrisSchema<TodoItem> = {
-  id: {
-    type: TigrisDataTypes.INT32,
-    primary_key: { order: 1, autoGenerate: true },
-  },
-  text: { type: TigrisDataTypes.STRING },
-  completed: { type: TigrisDataTypes.BOOLEAN },
-+  category: { type: TigrisDataTypes.STRING },
-};
 ```
 
 Once you've updated your data model, restarting the App will

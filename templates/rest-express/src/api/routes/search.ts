@@ -1,11 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { DB } from "@tigrisdata/core";
-import {
-  SearchRequest,
-  SearchRequestOptions,
-  SortOrder,
-} from "@tigrisdata/core/dist/search/types";
+import { DB, SearchQuery, SortOrder } from "@tigrisdata/core";
 import { Post } from "../../db/models/post";
 import middlewares from "../middlewares";
 
@@ -14,8 +9,8 @@ const apiSchema = z.object({
     searchString: z.string({
       required_error: "Search string is required",
     }),
-    page: z.number().optional(),
-    size: z.number().optional(),
+    page: z.coerce.number().optional(),
+    size: z.coerce.number().optional(),
     orderBy: z.enum(["asc", "desc"]).optional(),
   }),
 });
@@ -29,7 +24,7 @@ export default (app: Router, db: DB) => {
     async (req, res, next) => {
       const { searchString, page, size, orderBy } = req.query;
 
-      const request: SearchRequest<Post> = {
+      const request: SearchQuery<Post> = {
         q: searchString as string,
         searchFields: ["title", "content"],
         sort: [
@@ -44,15 +39,11 @@ export default (app: Router, db: DB) => {
         filter: {
           published: true,
         },
-      };
-
-      const options: SearchRequestOptions = {
-        page: Number(page) || undefined,
-        perPage: Number(size) || undefined,
+        hitsPerPage: Number(size) || 10,
       };
 
       postCollection
-        .search(request, options)
+        .search(request, Number(page) || 1)
         .then((results) => {
           const posts = new Array<Post>();
           for (const hit of results.hits) {

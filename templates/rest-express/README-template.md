@@ -122,35 +122,27 @@ The first step is to extend the `user` data model:
 ```diff
 // ./src/models/user.ts
 
-import { TigrisCollectionType, TigrisDataTypes, TigrisSchema } from "@tigrisdata/core/dist/types";
+import {
+  Field,
+  PrimaryKey,
+  TigrisCollection,
+  TigrisDataTypes,
+} from "@tigrisdata/core";
 
-export const USER_COLLECTION_NAME = "user";
+@TigrisCollection("user")
+export class User {
+  @PrimaryKey(TigrisDataTypes.INT64, { order: 1, autoGenerate: true })
+  id?: bigint;
 
-export interface User extends TigrisCollectionType {
-  id?: string;
+  @Field()
   email: string;
+
+  @Field()
   name: string;
++
++  @Field()
 +  bio: string;
 }
-
-export const userSchema: TigrisSchema<User> = {
-  id: {
-    type: TigrisDataTypes.INT64,
-    primary_key: {
-      order: 1,
-      autoGenerate: true,
-    },
-  },
-  email: {
-    type: TigrisDataTypes.STRING,
-  },
-  name: {
-    type: TigrisDataTypes.STRING,
-  },
-+  bio: {
-+    type: TigrisDataTypes.STRING,
-+  },
-};
 ```
 
 Once you've updated your data model, restarting the REST API server will
