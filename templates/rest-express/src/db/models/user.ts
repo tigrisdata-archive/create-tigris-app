@@ -1,5 +1,9 @@
-import { TigrisDataTypes } from "@tigrisdata/core/dist/types";
-import { Field, PrimaryKey, TigrisCollection } from "@tigrisdata/core";
+import {
+  Field,
+  PrimaryKey,
+  TigrisCollection,
+  TigrisDataTypes,
+} from "@tigrisdata/core";
 
 @TigrisCollection("user")
 export class User {

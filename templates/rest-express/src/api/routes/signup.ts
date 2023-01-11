@@ -45,8 +45,9 @@ export default (app: Router, db: DB) => {
       let createdPosts: Post[];
       db.transact(async (tx) => {
         const user = await userCollection.findOne(
-          { email: email },
-          undefined,
+          {
+            filter: { email: email },
+          },
           tx
         );
         if (user) {
@@ -69,8 +70,6 @@ export default (app: Router, db: DB) => {
             title: post?.title,
             content: post?.content,
             authorId: createdUser.id,
-            published: false,
-            viewCount: 0,
           };
         });
 

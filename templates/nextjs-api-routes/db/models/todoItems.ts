@@ -13,6 +13,6 @@ export class TodoItem {
   @Field()
   text!: string;
 
-  @Field()
+  @Field({ default: false })
   completed!: boolean;
 }

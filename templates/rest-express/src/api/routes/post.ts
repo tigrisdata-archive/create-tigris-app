@@ -52,8 +52,6 @@ export default (app: Router, db: DB) => {
             title: title,
             content: content,
             authorId: user.id,
-            published: false,
-            viewCount: 0,
           },
           tx
         );
