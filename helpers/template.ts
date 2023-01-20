@@ -18,6 +18,7 @@ export interface InstallEnvArgs {
   clientId: string;
   clientSecret: string;
   environment: string;
+  databaseBranch: string;
 }
 
 export interface InstallTemplateArgs {
@@ -29,6 +30,7 @@ export interface InstallTemplateArgs {
   clientId: string;
   clientSecret: string;
   environment: string;
+  databaseBranch: string;
 }
 
 /**
@@ -47,6 +49,7 @@ export const installEnv = ({
   clientId,
   clientSecret,
   environment,
+  databaseBranch,
 }: InstallEnvArgs) => {
   const parsedEnv = environment
     ? ENVIRONMENTS.includes(environment)
@@ -57,7 +60,8 @@ export const installEnv = ({
   const envContent = `TIGRIS_URI=api.${parsedEnv}.tigrisdata.cloud
 TIGRIS_PROJECT=${project}
 TIGRIS_CLIENT_ID=${clientId}
-TIGRIS_CLIENT_SECRET=${clientSecret}`;
+TIGRIS_CLIENT_SECRET=${clientSecret}
+TIGRIS_DB_BRANCH=${databaseBranch}`;
   fs.writeFileSync(path.join(root, ".env"), envContent + os.EOL);
 };
 
@@ -73,6 +77,7 @@ export const installTemplate = async ({
   clientId,
   clientSecret,
   environment,
+  databaseBranch,
 }: InstallTemplateArgs) => {
   console.log(
     `Downloading files for example ${chalk.cyan(
@@ -120,5 +125,6 @@ export const installTemplate = async ({
     project: appName,
     clientId: clientId,
     clientSecret: clientSecret,
+    databaseBranch: databaseBranch,
   });
 };

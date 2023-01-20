@@ -16,6 +16,7 @@ export async function createApp({
   clientId,
   clientSecret,
   environment,
+  databaseBranch,
 }: {
   appPath: string;
   packageManager: PackageManager;
@@ -23,6 +24,7 @@ export async function createApp({
   clientId: string;
   clientSecret: string;
   environment: string;
+  databaseBranch: string;
 }): Promise<void> {
   const template: TemplateType = example ? example : "default";
 
@@ -82,6 +84,7 @@ export async function createApp({
     clientId,
     clientSecret,
     environment,
+    databaseBranch,
   });
 
   if (tryGitInit(root)) {
