@@ -209,6 +209,9 @@ async function run(): Promise<void> {
     }
   }
 
+  // for now we default the database branch to "main"
+  const databaseBranch = "main";
+
   await createApp({
     appPath: resolvedProjectPath,
     packageManager,
@@ -217,6 +220,7 @@ async function run(): Promise<void> {
     clientId,
     clientSecret,
     environment,
+    databaseBranch,
   });
 }
 
