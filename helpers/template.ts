@@ -9,7 +9,8 @@ import fs from "fs";
 import path from "path";
 
 export const ENVIRONMENTS = ["dev", "preview"];
-export const TEMPLATES = ["default", "nextjs-api-routes", "rest-express"];
+export const ENV_VARS_ONLY_TEMPLATE_NAME = "env-vars-only"
+export const TEMPLATES = ["default", "nextjs-api-routes", "rest-express", ENV_VARS_ONLY_TEMPLATE_NAME];
 export type TemplateType = typeof TEMPLATES[number];
 
 export interface InstallEnvArgs {
@@ -57,12 +58,15 @@ export const installEnv = ({
       : "preview"
     : "preview";
 
+  const dotEnvPath = path.join(root, ".env")
   const envContent = `TIGRIS_URI=api.${parsedEnv}.tigrisdata.cloud
 TIGRIS_PROJECT=${project}
 TIGRIS_CLIENT_ID=${clientId}
 TIGRIS_CLIENT_SECRET=${clientSecret}
 TIGRIS_DB_BRANCH=${databaseBranch}`;
-  fs.writeFileSync(path.join(root, ".env"), envContent + os.EOL);
+  fs.writeFileSync(dotEnvPath, envContent + os.EOL);
+
+  return dotEnvPath;
 };
 
 /**

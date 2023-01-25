@@ -6,8 +6,22 @@ import { isFolderEmpty } from "./is-folder-empty";
 import { getOnline } from "./is-online";
 import { isWriteable } from "./is-writeable";
 import type { PackageManager } from "./get-pkg-manager";
-import { installTemplate, TemplateType } from "./template";
+import { ENV_VARS_ONLY_TEMPLATE_NAME, installEnv, installTemplate, TemplateType } from "./template";
 import { existsInRepo } from "./examples";
+
+interface CreateAppArgs {
+  appPath: string;
+  packageManager: PackageManager;
+  example?: string;
+  clientId: string;
+  clientSecret: string;
+  environment: string;
+  databaseBranch: string;
+}
+
+interface CreateTemplateArgs extends Omit<CreateAppArgs, "example"> {
+  template: string;
+}
 
 export async function createApp({
   appPath,
@@ -17,17 +31,50 @@ export async function createApp({
   clientSecret,
   environment,
   databaseBranch,
-}: {
-  appPath: string;
-  packageManager: PackageManager;
-  example?: string;
-  clientId: string;
-  clientSecret: string;
-  environment: string;
-  databaseBranch: string;
-}): Promise<void> {
+}: CreateAppArgs): Promise<void> {
   const template: TemplateType = example ? example : "default";
+  const root = path.resolve(appPath);
+  const appName = path.basename(root);
 
+  if (template === ENV_VARS_ONLY_TEMPLATE_NAME) {
+    await ensurePathExists(appPath)
+
+    const dotEnvPath = installEnv({
+      root: appPath,
+      environment: environment,
+      project: appName,
+      clientId: clientId,
+      clientSecret: clientSecret,
+      databaseBranch: databaseBranch,
+    });
+
+    console.log(
+      `\n${chalk.green("Success!")} Created ${dotEnvPath}\n`
+    );
+    console.log(`Ensure you add "${path.basename(dotEnvPath)}" to your .gitignore\n`)
+  }
+  else {
+    await createAppFromTemplate({
+      appPath,
+      packageManager,
+      template,
+      clientId,
+      clientSecret,
+      environment,
+      databaseBranch
+    })
+  }
+}
+
+async function createAppFromTemplate({
+  appPath,
+  packageManager,
+  template,
+  clientId,
+  clientSecret,
+  environment,
+  databaseBranch
+}: CreateTemplateArgs) {
   const found = await existsInRepo(template);
 
   if (!found) {
@@ -43,21 +90,8 @@ export async function createApp({
     process.exit(1);
   }
 
-  const root = path.resolve(appPath);
-
-  if (!(await isWriteable(path.dirname(root)))) {
-    console.error(
-      "The application path is not writable, please check folder permissions and try again."
-    );
-    console.error(
-      "It is likely you do not have write permissions for this folder."
-    );
-    process.exit(1);
-  }
-
+  const root = await ensurePathExists(appPath)
   const appName = path.basename(root);
-
-  await makeDir(root);
   if (!isFolderEmpty(root, appName)) {
     process.exit(1);
   }
@@ -121,4 +155,24 @@ export async function createApp({
     `  ${chalk.cyan(`${packageManager} ${useYarn ? "" : "run "}dev`)}`
   );
   console.log();
+}
+
+// TODO: this is a utlitiy but we should consider consolidating
+// the file system utilities into a single file
+export async function ensurePathExists(appPath: string) {
+  const root = path.resolve(appPath);
+
+  if (!(await isWriteable(path.dirname(root)))) {
+    console.error(
+      "The application path is not writable, please check folder permissions and try again."
+    );
+    console.error(
+      "It is likely you do not have write permissions for this folder."
+    );
+    process.exit(1);
+  }
+
+  await makeDir(root);
+
+  return root;
 }
