@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { DB, SearchQuery, SortOrder } from "@tigrisdata/core";
+import { DB, Order, SearchQuery } from "@tigrisdata/core";
 import { Post } from "../../db/models/post";
 import middlewares from "../middlewares";
 
@@ -32,8 +32,8 @@ export default (app: Router, db: DB) => {
             field: "updatedAt",
             order:
               orderBy?.toString().toLowerCase() == "asc"
-                ? SortOrder.ASC
-                : SortOrder.DESC,
+                ? Order.ASC
+                : Order.DESC,
           },
         ],
         filter: {

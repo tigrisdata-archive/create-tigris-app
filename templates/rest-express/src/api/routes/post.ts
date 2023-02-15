@@ -114,38 +114,23 @@ export default (app: Router, db: DB) => {
   app.put("/post/:id/views", async (req, res, next) => {
     const { id } = req.params;
 
-    let post: Post;
-    db.transact(async (tx) => {
-      const query = {
+    try {
+      const result = await postCollection.updateOne({
         filter: { id: BigInt(id) },
-      };
-      post = await postCollection.findOne(query, tx);
+        fields: { $increment: { viewCount: 1 } },
+      });
 
-      if (post === undefined) {
+      if (!result?.modifiedCount) {
         throw new APIError(
           HttpStatusCode.NOT_FOUND,
           `Post with ID ${id} does not exist in the database`
         );
       }
 
-      post.viewCount += 1;
-      const result = await postCollection.updateOne(
-        {
-          filter: { id: post.id },
-          fields: { viewCount: post.viewCount },
-        },
-        tx
-      );
-
-      if (!result?.modifiedCount) {
-        throw new APIError(
-          HttpStatusCode.INTERNAL_SERVER,
-          `Failed to update post views: ${result}`
-        );
-      }
-    })
-      .then(() => res.json({ post: post }))
-      .catch((error) => next(error));
+      res.status(200).json({ updated: true });
+    } catch (error) {
+      next(error);
+    }
   });
 
   app.put("/post/:id/publish", async (req, res, next) => {
