@@ -26,7 +26,7 @@ export function existsInRepo(nameOrUrl: string): Promise<boolean> {
     return isUrlOk(url.href);
   } catch {
     return isUrlOk(
-      `https://api.github.com/repos/tigrisdata/create-tigris-app/contents/templates/${encodeURIComponent(
+      `https://api.github.com/repos/tigrisdata/tigris-examples-ts/contents/${encodeURIComponent(
         nameOrUrl
       )}`
     );
@@ -45,14 +45,14 @@ export async function downloadAndExtractExample(root: string, name: string) {
   }
 
   const tempFile = await downloadTar(
-    "https://codeload.github.com/tigrisdata/create-tigris-app/tar.gz/main"
+    "https://codeload.github.com/tigrisdata/tigris-examples-ts/tar.gz/main"
   );
 
   await tar.x({
     file: tempFile,
     cwd: root,
-    strip: 3,
-    filter: (p) => p.includes(`create-tigris-app-main/templates/${name}/`),
+    strip: 2,
+    filter: (p) => p.includes(`tigris-examples-ts-main/${name}/`),
   });
 
   await fs.unlink(tempFile);

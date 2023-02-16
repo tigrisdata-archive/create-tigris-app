@@ -6,7 +6,7 @@ import { isFolderEmpty } from "./is-folder-empty";
 import { getOnline } from "./is-online";
 import { isWriteable } from "./is-writeable";
 import type { PackageManager } from "./get-pkg-manager";
-import { installTemplate, TemplateType } from "./template";
+import { DEFAULT_TEMPLATE, installTemplate, TemplateType } from "./template";
 import { existsInRepo } from "./examples";
 
 export async function createApp({
@@ -26,7 +26,7 @@ export async function createApp({
   environment: string;
   databaseBranch: string;
 }): Promise<void> {
-  const template: TemplateType = example ? example : "default";
+  const template: TemplateType = example ? example : DEFAULT_TEMPLATE;
 
   const found = await existsInRepo(template);
 
