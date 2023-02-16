@@ -215,8 +215,7 @@ async function run(): Promise<void> {
   await createApp({
     appPath: resolvedProjectPath,
     packageManager,
-    example:
-      templateName && templateName !== "default" ? templateName : undefined,
+    example: templateName,
     clientId,
     clientSecret,
     environment,

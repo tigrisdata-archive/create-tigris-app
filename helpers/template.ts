@@ -9,8 +9,9 @@ import fs from "fs";
 import path from "path";
 
 export const ENVIRONMENTS = ["dev", "preview"];
-export const TEMPLATES = ["default", "nextjs-api-routes", "rest-express"];
+export const TEMPLATES = ["nextjs-api-routes", "rest-express"];
 export type TemplateType = typeof TEMPLATES[number];
+export const DEFAULT_TEMPLATE = "rest-express";
 
 export interface InstallEnvArgs {
   root: string;
