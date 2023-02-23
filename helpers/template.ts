@@ -9,7 +9,11 @@ import fs from "fs";
 import path from "path";
 
 export const ENVIRONMENTS = ["dev", "preview"];
-export const TEMPLATES = ["nextjs-api-routes", "rest-express"];
+export const TEMPLATES = [
+  "nextjs-api-routes",
+  "rest-express",
+  "rest-search-express",
+];
 export type TemplateType = typeof TEMPLATES[number];
 export const DEFAULT_TEMPLATE = "rest-express";
 
