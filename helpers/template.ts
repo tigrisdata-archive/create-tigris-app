@@ -10,6 +10,7 @@ import path from "path";
 
 export const ENVIRONMENTS = ["dev", "preview"];
 export const TEMPLATES = [
+  "playground",
   "nextjs-api-routes",
   "rest-express",
   "rest-search-express",
