@@ -9,14 +9,16 @@ import fs from "fs";
 import path from "path";
 
 export const ENVIRONMENTS = ["dev", "preview"];
+export const TEMPLATE_FROM_GIT_URI = "Create an app from a Git repo";
+export const DEFAULT_TEMPLATE = "rest-express";
 export const TEMPLATES = [
   "playground",
   "nextjs-api-routes",
-  "rest-express",
+  DEFAULT_TEMPLATE,
   "rest-search-express",
+  TEMPLATE_FROM_GIT_URI,
 ];
 export type TemplateType = typeof TEMPLATES[number];
-export const DEFAULT_TEMPLATE = "rest-express";
 
 export interface InstallEnvArgs {
   root: string;
