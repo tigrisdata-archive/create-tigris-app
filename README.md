@@ -100,5 +100,5 @@ Options:
 ```
 
 [![npm](https://img.shields.io/npm/v/create-tigris-app)](https://www.npmjs.com/package/create-tigris-app)
-[![slack](https://img.shields.io/badge/slack-tigrisdata-34D058.svg?logo=slack)](https://tigrisdata.slack.com)
+[![Discord](https://img.shields.io/badge/discord-tigrisdata-34D058.svg?logo=discord)](https://www.tigrisdata.com/discord)
 [![GitHub](https://img.shields.io/github/license/tigrisdata/create-tigris-app)](https://github.com/tigrisdata/create-tigris-app/blob/main/LICENSE)
