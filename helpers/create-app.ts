@@ -155,6 +155,13 @@ async function cloneRepo({
 
   const { appName, root } = await createAppDir(appPath);
 
+  console.log(
+    `Downloading ${chalk.cyan(
+      gitUrl
+    )}. This might take a moment.`
+  );
+  console.log();
+
   const cloneSuccess = gitClone(root, gitUrl);
   if (cloneSuccess === false) {
     console.error("A problem occurred cloning the Git repo");

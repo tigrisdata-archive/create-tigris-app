@@ -179,6 +179,7 @@ async function run(): Promise<void> {
   }
 
   // set up the template or GitHub URL
+  let gitUrl: string | undefined = isUrl(templateNameOrGitUrl) ? templateNameOrGitUrl : undefined;
   if (!templateNameOrGitUrl) {
     const res = await prompts({
       type: "autocomplete",
@@ -196,27 +197,27 @@ async function run(): Promise<void> {
     }
   }
 
-  const templateFromGitUrl = templateNameOrGitUrl === TEMPLATE_FROM_GIT_URI;
-  if (templateFromGitUrl) {
+  if (templateNameOrGitUrl === TEMPLATE_FROM_GIT_URI) {
     const res = prompts({
       type: "text",
       name: "gitUrl",
       message: "Please enter a valid Git URL",
       validate: (value: string) => {
-        return value.startsWith("https://") || value.startsWith("git@");
+        return isUrl(value);
       },
     })
 
-    templateNameOrGitUrl = (await res).gitUrl;
+    gitUrl = (await res).gitUrl;
   }
 
-  if (templateNameOrGitUrl) {
+  if (!gitUrl && templateNameOrGitUrl) {
     templateNameOrGitUrl = templateNameOrGitUrl.trim();
-    if (!templateFromGitUrl && !validTemplate(templateNameOrGitUrl)) {
+    if (!validTemplate(templateNameOrGitUrl)) {
       console.error(
         "\nPlease specify one of the supported templates\n" +
-        "For example:\n" +
-        `  --example [${TEMPLATES.join(", ")}]\n\n` +
+        "Examples:\n" +
+        `  --example [${TEMPLATES.filter(value => value !== TEMPLATE_FROM_GIT_URI).join(", ")}]\n\n` +
+        `  --example https://github.com/tigrisdata-community/tigris-mongodb-typescript-example.git\n\n` +
         `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
       );
       process.exit(1);
@@ -229,13 +230,18 @@ async function run(): Promise<void> {
   await createApp({
     appPath: resolvedProjectPath,
     packageManager,
-    example: templateFromGitUrl ? undefined : templateNameOrGitUrl,
-    gitUrl: templateFromGitUrl ? templateNameOrGitUrl : undefined,
+    example: !gitUrl ? templateNameOrGitUrl : undefined,
+    gitUrl: gitUrl,
     clientId,
     clientSecret,
     environment,
     databaseBranch,
   });
+}
+
+function isUrl(value: string) {
+  if (!value) return false;
+  return value.startsWith("https://") || value.startsWith("git@")
 }
 
 const update = checkForUpdate(packageJson).catch(() => null);
