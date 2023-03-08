@@ -65,7 +65,7 @@ export function tryRemoveGit(root: string) {
 
 export function gitClone(root: string, gitUrl: string): boolean {
   try {
-    execSync(`git clone ${gitUrl} ${root}`, { stdio: "ignore" });
+    execSync(`git clone --depth=1 ${gitUrl} ${root}`, { stdio: "ignore" });
     return true
   }
   catch (_) {
