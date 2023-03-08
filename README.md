@@ -1,7 +1,7 @@
 # Create Tigris App
 
-The easiest way to get started with Tigris is by using `create-tigris-app`.
-This CLI tool enables you to quickly start building a new application with
+The simplest way to get started with Tigris is by using `create-tigris-app`.
+This CLI tool lets you quickly start building a new application with
 Tigris as the backend. You can create a new app using one of the templates.
 
 ### Interactive
