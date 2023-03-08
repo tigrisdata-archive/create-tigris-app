@@ -51,7 +51,7 @@ type DownloadArgs = {
   databaseBranch: string;
 }
 
-type CloneArgs = Omit<DownloadArgs, "template"> & {
+type CloneArgs = Omit<DownloadArgs, "template" | "originalDirectory"> & {
   gitUrl: string;
 }
 
@@ -138,7 +138,6 @@ async function downloadExample({
 }
 
 async function cloneRepo({
-  originalDirectory,
   appPath,
   gitUrl,
   packageManager,
@@ -225,7 +224,6 @@ export async function createApp({
 
   if (gitUrl) {
     await cloneRepo({
-      originalDirectory,
       appPath,
       clientId,
       clientSecret,
