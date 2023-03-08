@@ -1,7 +1,7 @@
 # Create Tigris App
 
-The easiest way to get started with Tigris is by using `create-tigris-app`.
-This CLI tool enables you to quickly start building a new application with
+The simplest way to get started with Tigris is by using `create-tigris-app`.
+This CLI tool lets you quickly start building a new application with
 Tigris as the backend. You can create a new app using one of the templates.
 
 ### Interactive
@@ -100,5 +100,5 @@ Options:
 ```
 
 [![npm](https://img.shields.io/npm/v/create-tigris-app)](https://www.npmjs.com/package/create-tigris-app)
-[![slack](https://img.shields.io/badge/slack-tigrisdata-34D058.svg?logo=slack)](https://tigrisdata.slack.com)
+[![Discord](https://img.shields.io/badge/discord-tigrisdata-34D058.svg?logo=discord)](https://www.tigrisdata.com/discord)
 [![GitHub](https://img.shields.io/github/license/tigrisdata/create-tigris-app)](https://github.com/tigrisdata/create-tigris-app/blob/main/LICENSE)

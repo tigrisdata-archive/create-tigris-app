@@ -9,14 +9,16 @@ import fs from "fs";
 import path from "path";
 
 export const ENVIRONMENTS = ["dev", "preview"];
+export const TEMPLATE_FROM_GIT_URI = "Create an app from a Git repo";
+export const DEFAULT_TEMPLATE = "rest-express";
 export const TEMPLATES = [
   "playground",
   "nextjs-api-routes",
-  "rest-express",
+  DEFAULT_TEMPLATE,
   "rest-search-express",
+  TEMPLATE_FROM_GIT_URI,
 ];
 export type TemplateType = typeof TEMPLATES[number];
-export const DEFAULT_TEMPLATE = "rest-express";
 
 export interface InstallEnvArgs {
   root: string;
@@ -63,13 +65,43 @@ export const installEnv = ({
       : "preview"
     : "preview";
 
-  const envContent = `TIGRIS_URI=api.${parsedEnv}.tigrisdata.cloud
+  const envExamplePath = path.join(root, ".env.example");
+  const envPath = path.join(root, ".env")
+
+  let envContent = "";
+
+  if (fs.existsSync(envExamplePath) === false) {
+    // No example file to base the .env file from
+    envContent = `TIGRIS_URI=api.${parsedEnv}.tigrisdata.cloud
 TIGRIS_PROJECT=${project}
 TIGRIS_CLIENT_ID=${clientId}
 TIGRIS_CLIENT_SECRET=${clientSecret}
-TIGRIS_DB_BRANCH=${databaseBranch}`;
-  fs.writeFileSync(path.join(root, ".env"), envContent + os.EOL);
+TIGRIS_DB_BRANCH=${databaseBranch}${os.EOL}`;
+  }
+  else {
+    // .env.example exists, so:
+    // 1. replace any template variables in the form `{VARIABLE_NAME}` with value
+    // 2. append an environment variable if a template variable does not exist
+    envContent = fs.readFileSync(envExamplePath, "utf-8");
+
+    envContent = replaceOrAppend(envContent, "TIGRIS_URI", `api.${parsedEnv}.tigrisdata.cloud`);
+    envContent = replaceOrAppend(envContent, "TIGRIS_PROJECT", project);
+    envContent = replaceOrAppend(envContent, "TIGRIS_CLIENT_ID", clientId);
+    envContent = replaceOrAppend(envContent, "TIGRIS_CLIENT_SECRET", clientSecret);
+    envContent = replaceOrAppend(envContent, "TIGRIS_DB_BRANCH", databaseBranch);
+  }
+  fs.writeFileSync(envPath, `${envContent}${os.EOL}`);
 };
+
+function replaceOrAppend(content: string, envVarName: string, envVarValue: string) {
+  if (content.includes(`{${envVarName}}`)) {
+    content = content.replace(`{${envVarName}}`, envVarValue);
+  }
+  else {
+    content += `${os.EOL}${envVarName}=${envVarValue}`;
+  }
+  return content;
+}
 
 /**
  * Install a template to a given `root` directory.

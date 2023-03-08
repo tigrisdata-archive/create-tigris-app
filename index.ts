@@ -6,13 +6,13 @@ import prompts from "prompts";
 import checkForUpdate from "update-check";
 import packageJson from "./package.json";
 import { getPkgManager, PackageManager } from "./helpers/get-pkg-manager";
-import { ENVIRONMENTS, TEMPLATES, validTemplate } from "./helpers/template";
+import { ENVIRONMENTS, TEMPLATES, TEMPLATE_FROM_GIT_URI, validTemplate } from "./helpers/template";
 import { validateNpmName } from "./helpers/validate-pkg";
 import { createApp } from "./helpers/create-app";
 
 const defaultProjectName = "myapp";
 let projectPath: string = "";
-let templateName: string;
+let templateNameOrGitUrl: string;
 let clientId: string;
 let clientSecret: string;
 let packageManager: PackageManager;
@@ -67,15 +67,15 @@ const program = new Commander.Command(packageJson.name)
   .allowUnknownOption()
   .action((options) => {
     projectPath = options.project;
-    templateName = options.example;
+    templateNameOrGitUrl = options.example;
     clientId = options.clientId;
     clientSecret = options.clientSecret;
     environment = options.env;
     packageManager = !!options.useNpm
       ? "npm"
       : !!options.usePnpm
-      ? "pnpm"
-      : getPkgManager();
+        ? "pnpm"
+        : getPkgManager();
   })
   .parse(process.argv);
 
@@ -103,14 +103,14 @@ async function run(): Promise<void> {
   if (!projectPath) {
     console.error(
       "\nPlease specify the project directory:\n" +
-        `  ${chalk.cyan(program.name())} --project ${chalk.green(
-          "<project-directory>"
-        )}\n` +
-        "For example:\n" +
-        `  ${chalk.cyan(program.name())} --project ${chalk.green(
-          "my-app"
-        )}\n\n` +
-        `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
+      `  ${chalk.cyan(program.name())} --project ${chalk.green(
+        "<project-directory>"
+      )}\n` +
+      "For example:\n" +
+      `  ${chalk.cyan(program.name())} --project ${chalk.green(
+        "my-app"
+      )}\n\n` +
+      `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
     );
     process.exit(1);
   }
@@ -169,17 +169,18 @@ async function run(): Promise<void> {
   if (!clientId || !clientSecret) {
     console.error(
       "\nPlease specify the clientId and clientSecret\n" +
-        "For example:\n" +
-        `  ${chalk.cyan(program.name())} --client-id ${chalk.green(
-          "xxx"
-        )} --client-secret ${chalk.green("xxx")}\n\n` +
-        `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
+      "For example:\n" +
+      `  ${chalk.cyan(program.name())} --client-id ${chalk.green(
+        "xxx"
+      )} --client-secret ${chalk.green("xxx")}\n\n` +
+      `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
     );
     process.exit(1);
   }
 
-  // set up the template
-  if (!templateName) {
+  // set up the template or GitHub URL
+  let gitUrl: string | undefined = isUrl(templateNameOrGitUrl) ? templateNameOrGitUrl : undefined;
+  if (!templateNameOrGitUrl) {
     const res = await prompts({
       type: "autocomplete",
       name: "template",
@@ -192,18 +193,32 @@ async function run(): Promise<void> {
       }),
     });
     if (typeof res.template === "string") {
-      templateName = res.template.trim();
+      templateNameOrGitUrl = res.template.trim();
     }
   }
 
-  if (templateName) {
-    templateName = templateName.trim();
-    if (!validTemplate(templateName)) {
+  if (templateNameOrGitUrl === TEMPLATE_FROM_GIT_URI) {
+    const res = prompts({
+      type: "text",
+      name: "gitUrl",
+      message: "Please enter a valid Git URL",
+      validate: (value: string) => {
+        return isUrl(value);
+      },
+    })
+
+    gitUrl = (await res).gitUrl;
+  }
+
+  if (!gitUrl && templateNameOrGitUrl) {
+    templateNameOrGitUrl = templateNameOrGitUrl.trim();
+    if (!validTemplate(templateNameOrGitUrl)) {
       console.error(
         "\nPlease specify one of the supported templates\n" +
-          "For example:\n" +
-          `  --example [${TEMPLATES.join(", ")}]\n\n` +
-          `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
+        "Examples:\n" +
+        `  --example [${TEMPLATES.filter(value => value !== TEMPLATE_FROM_GIT_URI).join(", ")}]\n\n` +
+        `  --example https://github.com/tigrisdata-community/tigris-mongodb-typescript-example.git\n\n` +
+        `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
       );
       process.exit(1);
     }
@@ -215,12 +230,18 @@ async function run(): Promise<void> {
   await createApp({
     appPath: resolvedProjectPath,
     packageManager,
-    example: templateName,
+    example: !gitUrl ? templateNameOrGitUrl : undefined,
+    gitUrl: gitUrl,
     clientId,
     clientSecret,
     environment,
     databaseBranch,
   });
+}
+
+function isUrl(value: string) {
+  if (!value) return false;
+  return value.startsWith("https://") || value.startsWith("git@")
 }
 
 const update = checkForUpdate(packageJson).catch(() => null);
@@ -233,17 +254,17 @@ async function notifyUpdate(): Promise<void> {
         packageManager === "yarn"
           ? "yarn global add @tigrisdata/create-tigris-app"
           : packageManager === "pnpm"
-          ? "pnpm add -g @tigrisdata/create-tigris-app"
-          : "npm i -g @tigrisdata/create-tigris-app";
+            ? "pnpm add -g @tigrisdata/create-tigris-app"
+            : "npm i -g @tigrisdata/create-tigris-app";
 
       console.log(
         chalk.yellow.bold(
           "A new version of `@tigrisdata/create-tigris-app` is available!"
         ) +
-          "\n" +
-          "You can update by running: " +
-          chalk.cyan(updateMessage) +
-          "\n"
+        "\n" +
+        "You can update by running: " +
+        chalk.cyan(updateMessage) +
+        "\n"
       );
     }
     process.exit();
