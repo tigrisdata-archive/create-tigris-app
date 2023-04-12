@@ -1,10 +1,13 @@
 {
   "name": "create-tigris-app",
-  "version": "1.0.0-beta.16",
+  "version": "1.0.0-beta.17",
   "keywords": [
     "database",
+    "nosql",
     "tigris",
-    "starter"
+    "starter",
+    "search",
+    "vector search"
   ],
   "description": "Utility to create applications to interact with Tigris, the open source developer data platform MongoDB alternative",
   "repository": "github:tigrisdata/create-tigris-app",

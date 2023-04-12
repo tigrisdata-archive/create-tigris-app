@@ -16,6 +16,7 @@ export const TEMPLATES = [
   "nextjs-api-routes",
   DEFAULT_TEMPLATE,
   "rest-search-express",
+  "vector-search-openai",
   TEMPLATE_FROM_GIT_URI,
 ];
 export type TemplateType = typeof TEMPLATES[number];
@@ -66,7 +67,7 @@ export const installEnv = ({
     : "preview";
 
   const envExamplePath = path.join(root, ".env.example");
-  const envPath = path.join(root, ".env")
+  const envPath = path.join(root, ".env");
 
   let envContent = "";
 
@@ -77,27 +78,41 @@ TIGRIS_PROJECT=${project}
 TIGRIS_CLIENT_ID=${clientId}
 TIGRIS_CLIENT_SECRET=${clientSecret}
 TIGRIS_DB_BRANCH=${databaseBranch}${os.EOL}`;
-  }
-  else {
+  } else {
     // .env.example exists, so:
     // 1. replace any template variables in the form `{VARIABLE_NAME}` with value
     // 2. append an environment variable if a template variable does not exist
     envContent = fs.readFileSync(envExamplePath, "utf-8");
 
-    envContent = replaceOrAppend(envContent, "TIGRIS_URI", `api.${parsedEnv}.tigrisdata.cloud`);
+    envContent = replaceOrAppend(
+      envContent,
+      "TIGRIS_URI",
+      `api.${parsedEnv}.tigrisdata.cloud`
+    );
     envContent = replaceOrAppend(envContent, "TIGRIS_PROJECT", project);
     envContent = replaceOrAppend(envContent, "TIGRIS_CLIENT_ID", clientId);
-    envContent = replaceOrAppend(envContent, "TIGRIS_CLIENT_SECRET", clientSecret);
-    envContent = replaceOrAppend(envContent, "TIGRIS_DB_BRANCH", databaseBranch);
+    envContent = replaceOrAppend(
+      envContent,
+      "TIGRIS_CLIENT_SECRET",
+      clientSecret
+    );
+    envContent = replaceOrAppend(
+      envContent,
+      "TIGRIS_DB_BRANCH",
+      databaseBranch
+    );
   }
   fs.writeFileSync(envPath, `${envContent}${os.EOL}`);
 };
 
-function replaceOrAppend(content: string, envVarName: string, envVarValue: string) {
+function replaceOrAppend(
+  content: string,
+  envVarName: string,
+  envVarValue: string
+) {
   if (content.includes(`{${envVarName}}`)) {
     content = content.replace(`{${envVarName}}`, envVarValue);
-  }
-  else {
+  } else {
     content += `${os.EOL}${envVarName}=${envVarValue}`;
   }
   return content;
