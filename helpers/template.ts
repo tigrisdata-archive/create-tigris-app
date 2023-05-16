@@ -8,7 +8,6 @@ import os from "os";
 import fs from "fs";
 import path from "path";
 
-export const ENVIRONMENTS = ["dev", "preview"];
 export const TEMPLATE_FROM_GIT_URI = "Create an app from a Git repo";
 export const DEFAULT_TEMPLATE = "rest-express";
 export const TEMPLATES = [
@@ -26,7 +25,7 @@ export interface InstallEnvArgs {
   project: string;
   clientId: string;
   clientSecret: string;
-  environment: string;
+  uri: string;
   databaseBranch: string;
 }
 
@@ -38,7 +37,7 @@ export interface InstallTemplateArgs {
   template: TemplateType;
   clientId: string;
   clientSecret: string;
-  environment: string;
+  uri: string;
   databaseBranch: string;
 }
 
@@ -57,15 +56,9 @@ export const installEnv = ({
   project,
   clientId,
   clientSecret,
-  environment,
+  uri,
   databaseBranch,
 }: InstallEnvArgs) => {
-  const parsedEnv = environment
-    ? ENVIRONMENTS.includes(environment)
-      ? environment
-      : "preview"
-    : "preview";
-
   const envExamplePath = path.join(root, ".env.example");
   const envPath = path.join(root, ".env");
 
@@ -73,7 +66,7 @@ export const installEnv = ({
 
   if (fs.existsSync(envExamplePath) === false) {
     // No example file to base the .env file from
-    envContent = `TIGRIS_URI=api.${parsedEnv}.tigrisdata.cloud
+    envContent = `TIGRIS_URI=${uri}
 TIGRIS_PROJECT=${project}
 TIGRIS_CLIENT_ID=${clientId}
 TIGRIS_CLIENT_SECRET=${clientSecret}
@@ -84,11 +77,7 @@ TIGRIS_DB_BRANCH=${databaseBranch}${os.EOL}`;
     // 2. append an environment variable if a template variable does not exist
     envContent = fs.readFileSync(envExamplePath, "utf-8");
 
-    envContent = replaceOrAppend(
-      envContent,
-      "TIGRIS_URI",
-      `api.${parsedEnv}.tigrisdata.cloud`
-    );
+    envContent = replaceOrAppend(envContent, "TIGRIS_URI", `${uri}`);
     envContent = replaceOrAppend(envContent, "TIGRIS_PROJECT", project);
     envContent = replaceOrAppend(envContent, "TIGRIS_CLIENT_ID", clientId);
     envContent = replaceOrAppend(
@@ -129,7 +118,7 @@ export const installTemplate = async ({
   template,
   clientId,
   clientSecret,
-  environment,
+  uri,
   databaseBranch,
 }: InstallTemplateArgs) => {
   console.log(
@@ -174,7 +163,7 @@ export const installTemplate = async ({
    */
   installEnv({
     root,
-    environment: environment,
+    uri: uri,
     project: appName,
     clientId: clientId,
     clientSecret: clientSecret,
