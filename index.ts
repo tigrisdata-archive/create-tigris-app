@@ -6,7 +6,11 @@ import prompts from "prompts";
 import checkForUpdate from "update-check";
 import packageJson from "./package.json";
 import { getPkgManager, PackageManager } from "./helpers/get-pkg-manager";
-import { ENVIRONMENTS, TEMPLATES, TEMPLATE_FROM_GIT_URI, validTemplate } from "./helpers/template";
+import {
+  TEMPLATES,
+  TEMPLATE_FROM_GIT_URI,
+  validTemplate,
+} from "./helpers/template";
 import { validateNpmName } from "./helpers/validate-pkg";
 import { createApp } from "./helpers/create-app";
 
@@ -15,8 +19,8 @@ let projectPath: string = "";
 let templateNameOrGitUrl: string;
 let clientId: string;
 let clientSecret: string;
+let uri: string;
 let packageManager: PackageManager;
-let environment: string;
 
 const program = new Commander.Command(packageJson.name)
   .version(packageJson.version)
@@ -59,9 +63,9 @@ const program = new Commander.Command(packageJson.name)
 `
   )
   .option(
-    `-E, --env [${ENVIRONMENTS.join(", ")}]`,
+    "-u, --uri [uri]",
     `
-  The environment where the project will be created
+  The uri project will use to connect to Tigris
 `
   )
   .allowUnknownOption()
@@ -70,12 +74,12 @@ const program = new Commander.Command(packageJson.name)
     templateNameOrGitUrl = options.example;
     clientId = options.clientId;
     clientSecret = options.clientSecret;
-    environment = options.env;
+    uri = options.uri;
     packageManager = !!options.useNpm
       ? "npm"
       : !!options.usePnpm
-        ? "pnpm"
-        : getPkgManager();
+      ? "pnpm"
+      : getPkgManager();
   })
   .parse(process.argv);
 
@@ -103,14 +107,14 @@ async function run(): Promise<void> {
   if (!projectPath) {
     console.error(
       "\nPlease specify the project directory:\n" +
-      `  ${chalk.cyan(program.name())} --project ${chalk.green(
-        "<project-directory>"
-      )}\n` +
-      "For example:\n" +
-      `  ${chalk.cyan(program.name())} --project ${chalk.green(
-        "my-app"
-      )}\n\n` +
-      `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
+        `  ${chalk.cyan(program.name())} --project ${chalk.green(
+          "<project-directory>"
+        )}\n` +
+        "For example:\n" +
+        `  ${chalk.cyan(program.name())} --project ${chalk.green(
+          "my-app"
+        )}\n\n` +
+        `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
     );
     process.exit(1);
   }
@@ -130,6 +134,24 @@ async function run(): Promise<void> {
 
     problems!.forEach((p) => console.error(`    ${chalk.red.bold("*")} ${p}`));
     process.exit(1);
+  }
+
+  // set up the uri
+  if (!uri) {
+    const res = await prompts({
+      type: "text",
+      name: "uri",
+      message: "What is the URI?",
+      validate: (name: any) => {
+        if (typeof name === "string" && name.trim().length > 0) {
+          return true;
+        }
+        return "The uri cannot be empty";
+      },
+    });
+    if (typeof res.uri === "string") {
+      uri = res.uri.trim();
+    }
   }
 
   // set up the clientId and clientSecret
@@ -169,17 +191,19 @@ async function run(): Promise<void> {
   if (!clientId || !clientSecret) {
     console.error(
       "\nPlease specify the clientId and clientSecret\n" +
-      "For example:\n" +
-      `  ${chalk.cyan(program.name())} --client-id ${chalk.green(
-        "xxx"
-      )} --client-secret ${chalk.green("xxx")}\n\n` +
-      `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
+        "For example:\n" +
+        `  ${chalk.cyan(program.name())} --client-id ${chalk.green(
+          "xxx"
+        )} --client-secret ${chalk.green("xxx")}\n\n` +
+        `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
     );
     process.exit(1);
   }
 
   // set up the template or GitHub URL
-  let gitUrl: string | undefined = isUrl(templateNameOrGitUrl) ? templateNameOrGitUrl : undefined;
+  let gitUrl: string | undefined = isUrl(templateNameOrGitUrl)
+    ? templateNameOrGitUrl
+    : undefined;
   if (!templateNameOrGitUrl) {
     const res = await prompts({
       type: "autocomplete",
@@ -205,7 +229,7 @@ async function run(): Promise<void> {
       validate: (value: string) => {
         return isUrl(value);
       },
-    })
+    });
 
     gitUrl = (await res).gitUrl;
   }
@@ -215,10 +239,12 @@ async function run(): Promise<void> {
     if (!validTemplate(templateNameOrGitUrl)) {
       console.error(
         "\nPlease specify one of the supported templates\n" +
-        "Examples:\n" +
-        `  --example [${TEMPLATES.filter(value => value !== TEMPLATE_FROM_GIT_URI).join(", ")}]\n\n` +
-        `  --example https://github.com/tigrisdata-community/tigris-mongodb-typescript-example.git\n\n` +
-        `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
+          "Examples:\n" +
+          `  --example [${TEMPLATES.filter(
+            (value) => value !== TEMPLATE_FROM_GIT_URI
+          ).join(", ")}]\n\n` +
+          `  --example https://github.com/tigrisdata-community/tigris-mongodb-typescript-example.git\n\n` +
+          `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
       );
       process.exit(1);
     }
@@ -234,14 +260,14 @@ async function run(): Promise<void> {
     gitUrl: gitUrl,
     clientId,
     clientSecret,
-    environment,
+    uri,
     databaseBranch,
   });
 }
 
 function isUrl(value: string) {
   if (!value) return false;
-  return value.startsWith("https://") || value.startsWith("git@")
+  return value.startsWith("https://") || value.startsWith("git@");
 }
 
 const update = checkForUpdate(packageJson).catch(() => null);
@@ -254,17 +280,17 @@ async function notifyUpdate(): Promise<void> {
         packageManager === "yarn"
           ? "yarn global add @tigrisdata/create-tigris-app"
           : packageManager === "pnpm"
-            ? "pnpm add -g @tigrisdata/create-tigris-app"
-            : "npm i -g @tigrisdata/create-tigris-app";
+          ? "pnpm add -g @tigrisdata/create-tigris-app"
+          : "npm i -g @tigrisdata/create-tigris-app";
 
       console.log(
         chalk.yellow.bold(
           "A new version of `@tigrisdata/create-tigris-app` is available!"
         ) +
-        "\n" +
-        "You can update by running: " +
-        chalk.cyan(updateMessage) +
-        "\n"
+          "\n" +
+          "You can update by running: " +
+          chalk.cyan(updateMessage) +
+          "\n"
       );
     }
     process.exit();

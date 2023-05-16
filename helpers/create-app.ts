@@ -6,7 +6,13 @@ import { isFolderEmpty } from "./is-folder-empty";
 import { getOnline } from "./is-online";
 import { isWriteable } from "./is-writeable";
 import type { PackageManager } from "./get-pkg-manager";
-import { DEFAULT_TEMPLATE, installEnv, installTemplate, TemplateType, TEMPLATE_FROM_GIT_URI } from "./template";
+import {
+  DEFAULT_TEMPLATE,
+  installEnv,
+  installTemplate,
+  TemplateType,
+  TEMPLATE_FROM_GIT_URI,
+} from "./template";
 import { existsInRepo } from "./examples";
 import { URL } from "url";
 import { setupDependencies } from "./package-json";
@@ -40,20 +46,20 @@ async function createAppDir(appPath: string) {
 }
 
 type DownloadArgs = {
-  originalDirectory: string,
+  originalDirectory: string;
   appPath: string;
   template: string;
   packageManager: PackageManager;
   isOnline: boolean;
   clientId: string;
   clientSecret: string;
-  environment: string;
+  uri: string;
   databaseBranch: string;
-}
+};
 
 type CloneArgs = Omit<DownloadArgs, "template" | "originalDirectory"> & {
   gitUrl: string;
-}
+};
 
 async function downloadExample({
   originalDirectory,
@@ -63,7 +69,7 @@ async function downloadExample({
   isOnline,
   clientId,
   clientSecret,
-  environment,
+  uri,
   databaseBranch,
 }: DownloadArgs): Promise<void> {
   const found = await existsInRepo(template);
@@ -95,7 +101,7 @@ async function downloadExample({
     isOnline,
     clientId,
     clientSecret,
-    environment,
+    uri,
     databaseBranch,
   });
 
@@ -144,21 +150,19 @@ async function cloneRepo({
   isOnline,
   clientId,
   clientSecret,
-  environment,
+  uri,
   databaseBranch,
 }: CloneArgs): Promise<void> {
   if (gitInstalled() === false) {
-    console.error('git must be installed in order to create an application from a template using a Git URL');
+    console.error(
+      "git must be installed in order to create an application from a template using a Git URL"
+    );
     process.exit(1);
   }
 
   const { appName, root } = await createAppDir(appPath);
 
-  console.log(
-    `Downloading ${chalk.cyan(
-      gitUrl
-    )}. This might take a moment.`
-  );
+  console.log(`Downloading ${chalk.cyan(gitUrl)}. This might take a moment.`);
   console.log();
 
   const cloneSuccess = gitClone(root, gitUrl);
@@ -176,14 +180,14 @@ async function cloneRepo({
 
   installEnv({
     root,
-    environment: environment,
+    uri: uri,
     project: appName,
     clientId: clientId,
     clientSecret: clientSecret,
     databaseBranch: databaseBranch,
   });
 
-  tryRemoveGit(root)
+  tryRemoveGit(root);
 
   if (tryGitInit(root)) {
     console.log("Initialized a git repository.");
@@ -202,16 +206,16 @@ export async function createApp({
   gitUrl,
   clientId,
   clientSecret,
-  environment,
+  uri,
   databaseBranch,
 }: {
   appPath: string;
   packageManager: PackageManager;
   example?: string;
-  gitUrl?: string,
+  gitUrl?: string;
   clientId: string;
   clientSecret: string;
-  environment: string;
+  uri: string;
   databaseBranch: string;
 }): Promise<void> {
   if (gitUrl && example) {
@@ -227,25 +231,24 @@ export async function createApp({
       appPath,
       clientId,
       clientSecret,
+      uri,
       databaseBranch,
-      environment,
       isOnline,
       packageManager,
       gitUrl: gitUrl!,
     });
-  }
-  else {
+  } else {
     const template: TemplateType = example ? example : DEFAULT_TEMPLATE;
     await downloadExample({
       originalDirectory,
       appPath,
       clientId,
       clientSecret,
+      uri,
       databaseBranch,
-      environment,
       isOnline,
       packageManager,
       template,
-    })
+    });
   }
 }
